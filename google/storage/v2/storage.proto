@@ -1,4 +1,4 @@
-// Copyright 2021 Google LLC
+// Copyright 2022 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -319,16 +319,20 @@ message CreateBucketRequest {
   // the bucket resource.
   Bucket bucket = 2 [(google.api.field_behavior) = REQUIRED];
 
-  // The ID to use for this bucket, which will become the final component of
+  // Required. The ID to use for this bucket, which will become the final component of
   // the bucket's resource name. For example, the value `foo` might result in
   // a bucket with the name `projects/123456/buckets/foo`.
-  string bucket_id = 3;
+  string bucket_id = 3 [(google.api.field_behavior) = REQUIRED];
 
   // Apply a predefined set of access controls to this bucket.
-  PredefinedBucketAcl predefined_acl = 4;
+  // Valid values are "authenticatedRead", "private", "projectPrivate",
+  // "publicRead", or "publicReadWrite".
+  string predefined_acl = 6;
 
   // Apply a predefined set of default object access controls to this bucket.
-  PredefinedObjectAcl predefined_default_object_acl = 5;
+  // Valid values are "authenticatedRead", "bucketOwnerFullControl",
+  // "bucketOwnerRead", "private", "projectPrivate", or "publicRead".
+  string predefined_default_object_acl = 7;
 }
 
 // Request message for ListBuckets.
@@ -407,10 +411,14 @@ message UpdateBucketRequest {
   optional int64 if_metageneration_not_match = 3;
 
   // Apply a predefined set of access controls to this bucket.
-  PredefinedBucketAcl predefined_acl = 4;
+  // Valid values are "authenticatedRead", "private", "projectPrivate",
+  // "publicRead", or "publicReadWrite".
+  string predefined_acl = 8;
 
   // Apply a predefined set of default object access controls to this bucket.
-  PredefinedObjectAcl predefined_default_object_acl = 5;
+  // Valid values are "authenticatedRead", "bucketOwnerFullControl",
+  // "bucketOwnerRead", "private", "projectPrivate", or "publicRead".
+  string predefined_default_object_acl = 9;
 
   // List of fields to be updated.
   //
@@ -511,9 +519,9 @@ message ComposeObjectRequest {
       optional int64 if_generation_match = 1;
     }
 
-    // The source object's name. All source objects must reside in the same
+    // Required. The source object's name. All source objects must reside in the same
     // bucket.
-    string name = 1;
+    string name = 1 [(google.api.field_behavior) = REQUIRED];
 
     // The generation of this object to use as the source.
     int64 generation = 2;
@@ -529,7 +537,9 @@ message ComposeObjectRequest {
   repeated SourceObject source_objects = 2;
 
   // Apply a predefined set of access controls to the destination object.
-  PredefinedObjectAcl destination_predefined_acl = 3;
+  // Valid values are "authenticatedRead", "bucketOwnerFullControl",
+  // "bucketOwnerRead", "private", "projectPrivate", or "publicRead".
+  string destination_predefined_acl = 9;
 
   // Makes the operation conditional on whether the object's current generation
   // matches the given value. Setting to 0 makes the operation succeed only if
@@ -708,7 +718,7 @@ message GetObjectRequest {
   optional google.protobuf.FieldMask read_mask = 10;
 }
 
-// Response message for GetObject.
+// Response message for ReadObject.
 message ReadObjectResponse {
   // A portion of the data for the object. The service **may** leave `data`
   // empty for any given `ReadResponse`. This enables the service to inform the
@@ -737,7 +747,9 @@ message WriteObjectSpec {
   Object resource = 1;
 
   // Apply a predefined set of access controls to this object.
-  PredefinedObjectAcl predefined_acl = 2;
+  // Valid values are "authenticatedRead", "bucketOwnerFullControl",
+  // "bucketOwnerRead", "private", "projectPrivate", or "publicRead".
+  string predefined_acl = 7;
 
   // Makes the operation conditional on whether the object's current
   // generation matches the given value. Setting to 0 makes the operation
@@ -923,20 +935,48 @@ message QueryWriteStatusResponse {
 }
 
 // Request message for RewriteObject.
+// If the source object is encrypted using a Customer-Supplied Encryption Key
+// the key information must be provided in the copy_source_encryption_algorithm,
+// copy_source_encryption_key_bytes, and copy_source_encryption_key_sha256_bytes
+// fields. If the destination object should be encrypted the keying information
+// should be provided in the encryption_algorithm, encryption_key_bytes, and
+// encryption_key_sha256_bytes fields of the
+// common_object_request_params.customer_encryption field.
 message RewriteObjectRequest {
-  // Properties of the destination, post-rewrite object.
-  // Includes bucket name, object name, KMS key.
-  Object destination = 1;
+  // Immutable. The name of the destination object. Nearly any sequence of unicode
+  // characters is valid. See
+  // [Guidelines](https://cloud.google.com/storage/docs/naming-objects).
+  // Example: `test.txt`
+  // The `name` field by itself does not uniquely identify a Cloud Storage
+  // object. A Cloud Storage object is uniquely identified by the tuple of
+  // (bucket, object, generation).
+  string destination_name = 24 [(google.api.field_behavior) = IMMUTABLE];
 
-  // List of fields to be updated in the destination object from `destination`.
-  // If the mask is not present, all fields from the source object will be
-  // copied excepting ACL. If the mask is present but specifies no fields, no
-  // fields will be copied.
-  // Non-ACL metadata not included in the mask will be copied from the source
-  // object.
-  // If not present, all fields from the destination will be set from
-  // `destination`.
-  google.protobuf.FieldMask rewrite_mask = 23;
+  // Immutable. The name of the bucket containing The name of the destination object.
+  string destination_bucket = 25 [
+    (google.api.field_behavior) = IMMUTABLE,
+    (google.api.resource_reference) = {
+      type: "storage.googleapis.com/Bucket"
+    }
+  ];
+
+  // The name of the Cloud KMS key that will be used to encrypt the destination
+  // object. The Cloud KMS key must be located in same location as the object.
+  // If the parameter is not specified, the request uses the destination
+  // bucket's default encryption key, if any, or else the Google-managed
+  // encryption key.
+  string destination_kms_key = 27 [(google.api.resource_reference) = {
+                                     type: "cloudkms.googleapis.com/CryptoKey"
+                                   }];
+
+  // Properties of the destination, post-rewrite object.
+  // The `name`, `bucket` and `kms_key` fields must not be populated (these
+  // values are specified in the `destination_name`, `destination_bucket`, and
+  // `destination_kms_key` fields).
+  // If `destination` is present it will be used to construct the destination
+  // object's metadata; otherwise the destination object's metadata will be
+  // copied from the source object.
+  Object destination = 1;
 
   // Required. Name of the bucket in which to find the source object.
   string source_bucket = 2 [(google.api.field_behavior) = REQUIRED];
@@ -956,7 +996,9 @@ message RewriteObjectRequest {
   string rewrite_token = 5;
 
   // Apply a predefined set of access controls to the destination object.
-  PredefinedObjectAcl destination_predefined_acl = 6;
+  // Valid values are "authenticatedRead", "bucketOwnerFullControl",
+  // "bucketOwnerRead", "private", "projectPrivate", or "publicRead".
+  string destination_predefined_acl = 28;
 
   // Makes the operation conditional on whether the object's current generation
   // matches the given value. Setting to 0 makes the operation succeed only if
@@ -1003,15 +1045,18 @@ message RewriteObjectRequest {
   // `rewriteToken` is invalid.
   int64 max_bytes_rewritten_per_call = 15;
 
-  // The algorithm used to encrypt the source object, if any.
+  // The algorithm used to encrypt the source object, if any. Used if the source
+  // object was encrypted with a Customer-Supplied Encryption Key.
   string copy_source_encryption_algorithm = 16;
 
-  // The encryption key used to encrypt the source object, if any.
-  // In raw bytes format (not base64-encoded).
+  // The raw bytes (not base64-encoded) AES-256 encryption key used to encrypt
+  // the source object, if it was encrypted with a Customer-Supplied Encryption
+  // Key.
   bytes copy_source_encryption_key_bytes = 21;
 
-  // The SHA-256 hash of the key used to encrypt the source object, if any.
-  // In raw bytes format (not base64-encoded).
+  // The raw bytes (not base64-encoded) SHA256 hash of the encryption key used
+  // to encrypt the source object, if it was encrypted with a Customer-Supplied
+  // Encryption Key.
   bytes copy_source_encryption_key_sha256_bytes = 22;
 
   // A set of parameters common to Storage API requests concerning an object.
@@ -1092,7 +1137,9 @@ message UpdateObjectRequest {
   optional int64 if_metageneration_not_match = 5;
 
   // Apply a predefined set of access controls to this object.
-  PredefinedObjectAcl predefined_acl = 6;
+  // Valid values are "authenticatedRead", "bucketOwnerFullControl",
+  // "bucketOwnerRead", "private", "projectPrivate", or "publicRead".
+  string predefined_acl = 10;
 
   // List of fields to be updated.
   //
@@ -1241,15 +1288,16 @@ message UpdateHmacKeyRequest {
 
 // Parameters that can be passed to any object request.
 message CommonObjectRequestParams {
-  // Encryption algorithm used with Customer-Supplied Encryption Keys feature.
+  // Encryption algorithm used with the Customer-Supplied Encryption Keys
+  // feature.
   string encryption_algorithm = 1;
 
-  // Encryption key used with Customer-Supplied Encryption Keys feature.
+  // Encryption key used with the Customer-Supplied Encryption Keys feature.
   // In raw bytes format (not base64-encoded).
   bytes encryption_key_bytes = 4;
 
-  // SHA256 hash of encryption key used with Customer-Supplied Encryption Keys
-  // feature.
+  // SHA256 hash of encryption key used with the Customer-Supplied Encryption
+  // Keys feature.
   bytes encryption_key_sha256_bytes = 5;
 }
 
@@ -1390,8 +1438,8 @@ message Bucket {
 
   // Encryption properties of a bucket.
   message Encryption {
-    // A Cloud KMS key that will be used to encrypt objects inserted into this
-    // bucket, if no encryption method is specified.
+    // The name of the Cloud KMS key that will be used to encrypt objects
+    // inserted into this bucket, if no encryption method is specified.
     string default_kms_key = 1 [(google.api.resource_reference) = {
                                   type: "cloudkms.googleapis.com/CryptoKey"
                                 }];
@@ -1412,26 +1460,12 @@ message Bucket {
       google.protobuf.Timestamp lock_time = 2;
     }
 
-    // Public Access Prevention config values.
-    enum PublicAccessPrevention {
-      // No specified PublicAccessPrevention.
-      PUBLIC_ACCESS_PREVENTION_UNSPECIFIED = 0;
-
-      // Prevents access from being granted to public members 'allUsers' and
-      // 'allAuthenticatedUsers'. Prevents attempts to grant new access to
-      // public members.
-      ENFORCED = 1;
-
-      // This setting is inherited from Org Policy. Does not prevent access from
-      // being granted to public members 'allUsers' or 'allAuthenticatedUsers'.
-      INHERITED = 2;
-    }
-
     // Bucket restriction options currently enforced on the bucket.
     UniformBucketLevelAccess uniform_bucket_level_access = 1;
 
-    // Whether IAM will enforce public access prevention.
-    PublicAccessPrevention public_access_prevention = 2;
+    // Whether IAM will enforce public access prevention. Valid values are
+    // "enforced" or "inherited".
+    string public_access_prevention = 3;
   }
 
   // Lifecycle properties of a bucket.
@@ -1442,8 +1476,8 @@ message Bucket {
     message Rule {
       // An action to take on an object.
       message Action {
-        // Type of the action. Currently, only `Delete` and
-        // `SetStorageClass` are supported.
+        // Type of the action. Currently, only `Delete`, `SetStorageClass`, and
+        // `AbortIncompleteMultipartUpload` are supported.
         string type = 1;
 
         // Target storage class. Required iff the type of the action is
@@ -1499,6 +1533,14 @@ message Bucket {
         // version satisfies this condition only if it became noncurrent before
         // the specified date in UTC.
         google.type.Date noncurrent_time_before = 10;
+
+        // List of object name prefixes. If any prefix exactly matches the
+        // beginning of the object name, the condition evaluates to true.
+        repeated string matches_prefix = 11;
+
+        // List of object name suffixes. If any suffix exactly matches the
+        // end of the object name, the condition evaluates to true.
+        repeated string matches_suffix = 12;
       }
 
       // The action to take.
@@ -1565,11 +1607,16 @@ message Bucket {
     string not_found_page = 2;
   }
 
-  // Configuration for Custom Dual Regions.  It should specify precisely two
-  // eligible regions within the same Multiregion.
-  message CustomPlacementConfig {
-    // List of locations to use for data placement.
-    repeated string data_locations = 1;
+  // Configuration for a bucket's Autoclass feature.
+  message Autoclass {
+    // Enables Autoclass.
+    bool enabled = 1;
+
+    // Output only. Latest instant at which the `enabled` field was set to true after being
+    // disabled/unconfigured or set to false after being enabled. If Autoclass
+    // is enabled when the bucket is created, the toggle_time is set to the
+    // bucket creation time.
+    google.protobuf.Timestamp toggle_time = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
   }
 
   // Immutable. The name of the bucket.
@@ -1706,9 +1753,9 @@ message Bucket {
   // Reserved for future use.
   bool satisfies_pzs = 25;
 
-  // Configuration that, if present, specifies the data placement for a Custom
-  // Dual Region.
-  CustomPlacementConfig custom_placement_config = 26;
+  // The bucket's Autoclass configuration. If there is no configuration, the
+  // Autoclass feature will be disabled and have no effect on the bucket.
+  Autoclass autoclass = 28;
 }
 
 // An access-control entry.
@@ -1812,8 +1859,8 @@ message Notification {
 
   // Required. The resource name of this notification.
   // Format:
-  // `projects/{project}/buckets/{bucket}/notificationConfigs/{notification` The
-  // `{project}` portion may be `_` for globally unique buckets.
+  // `projects/{project}/buckets/{bucket}/notificationConfigs/{notification}`
+  // The `{project}` portion may be `_` for globally unique buckets.
   string name = 1 [(google.api.field_behavior) = REQUIRED];
 
   // Required. The Pub/Sub topic to which this subscription publishes. Formatted as:
@@ -1836,18 +1883,19 @@ message Notification {
   string payload_format = 6 [(google.api.field_behavior) = REQUIRED];
 }
 
+// Describes the Customer-Supplied Encryption Key mechanism used to store an
+// Object's data at rest.
+message CustomerEncryption {
+  // The encryption algorithm.
+  string encryption_algorithm = 1;
+
+  // SHA256 hash value of the encryption key.
+  // In raw bytes format (not base64-encoded).
+  bytes key_sha256_bytes = 3;
+}
+
 // An object.
 message Object {
-  // Describes the customer-specified mechanism used to store the data at rest.
-  message CustomerEncryption {
-    // The encryption algorithm.
-    string encryption_algorithm = 1;
-
-    // SHA256 hash value of the encryption key.
-    // In raw bytes format (not base64-encoded).
-    bytes key_sha256_bytes = 3;
-  }
-
   // Immutable. The name of this object. Nearly any sequence of unicode characters is
   // valid. See
   // [Guidelines](https://cloud.google.com/storage/docs/naming-objects).
@@ -1991,7 +2039,7 @@ message Object {
   // [FieldViolation][google.rpc.BadRequest.FieldViolation].
   Owner owner = 24 [(google.api.field_behavior) = OUTPUT_ONLY];
 
-  // Metadata of customer-supplied encryption key, if the object is encrypted by
+  // Metadata of Customer-Supplied Encryption Key, if the object is encrypted by
   // such a key.
   CustomerEncryption customer_encryption = 25;
 
@@ -2087,58 +2135,4 @@ message ContentRange {
 
   // The complete length of the object data.
   int64 complete_length = 3;
-}
-
-// Predefined or "canned" aliases for sets of specific object ACL entries.
-enum PredefinedObjectAcl {
-  // No predefined ACL.
-  PREDEFINED_OBJECT_ACL_UNSPECIFIED = 0;
-
-  // Object owner gets `OWNER` access, and
-  // `allAuthenticatedUsers` get `READER` access.
-  OBJECT_ACL_AUTHENTICATED_READ = 1;
-
-  // Object owner gets `OWNER` access, and project team owners get
-  // `OWNER` access.
-  OBJECT_ACL_BUCKET_OWNER_FULL_CONTROL = 2;
-
-  // Object owner gets `OWNER` access, and project team owners get
-  // `READER` access.
-  OBJECT_ACL_BUCKET_OWNER_READ = 3;
-
-  // Object owner gets `OWNER` access.
-  OBJECT_ACL_PRIVATE = 4;
-
-  // Object owner gets `OWNER` access, and project team members get
-  // access according to their roles.
-  OBJECT_ACL_PROJECT_PRIVATE = 5;
-
-  // Object owner gets `OWNER` access, and `allUsers`
-  // get `READER` access.
-  OBJECT_ACL_PUBLIC_READ = 6;
-}
-
-// A set of predefined, or "canned," ACLs that can be set on a
-// bucket instead of manually specifying a complete ACL.
-enum PredefinedBucketAcl {
-  // No predefined ACL.
-  PREDEFINED_BUCKET_ACL_UNSPECIFIED = 0;
-
-  // Project team owners get `OWNER` access, and
-  // `allAuthenticatedUsers` get `READER` access.
-  BUCKET_ACL_AUTHENTICATED_READ = 1;
-
-  // Project team owners get `OWNER` access.
-  BUCKET_ACL_PRIVATE = 2;
-
-  // Project team members get access according to their roles.
-  BUCKET_ACL_PROJECT_PRIVATE = 3;
-
-  // Project team owners get `OWNER` access, and
-  // `allUsers` get `READER` access.
-  BUCKET_ACL_PUBLIC_READ = 4;
-
-  // Project team owners get `OWNER` access, and
-  // `allUsers` get `WRITER` access.
-  BUCKET_ACL_PUBLIC_READ_WRITE = 5;
 }
