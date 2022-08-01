@@ -19,11 +19,17 @@ package google.cloud.securitycenter.v1;
 import "google/api/field_behavior.proto";
 import "google/api/resource.proto";
 import "google/cloud/securitycenter/v1/access.proto";
+import "google/cloud/securitycenter/v1/compliance.proto";
 import "google/cloud/securitycenter/v1/connection.proto";
+import "google/cloud/securitycenter/v1/contact_details.proto";
+import "google/cloud/securitycenter/v1/container.proto";
+import "google/cloud/securitycenter/v1/exfiltration.proto";
 import "google/cloud/securitycenter/v1/external_system.proto";
 import "google/cloud/securitycenter/v1/iam_binding.proto";
 import "google/cloud/securitycenter/v1/indicator.proto";
+import "google/cloud/securitycenter/v1/kubernetes.proto";
 import "google/cloud/securitycenter/v1/mitre_attack.proto";
+import "google/cloud/securitycenter/v1/process.proto";
 import "google/cloud/securitycenter/v1/security_marks.proto";
 import "google/cloud/securitycenter/v1/vulnerability.proto";
 import "google/protobuf/struct.proto";
@@ -274,12 +280,48 @@ message Finding {
   // shouldn't set the value of mute.
   string mute_initiator = 28;
 
+  // Represents operating system processes associated with the Finding.
+  repeated Process processes = 30;
+
+  // Output only. Map containing the point of contacts for the given finding. The key
+  // represents the type of contact, while the value contains a list of all the
+  // contacts that pertain. Please refer to:
+  // https://cloud.google.com/resource-manager/docs/managing-notification-contacts#notification-categories
+  //
+  //     {
+  //       "security": {
+  //         "contacts": [
+  //           {
+  //             "email": "person1@company.com"
+  //           },
+  //           {
+  //             "email": "person2@company.com"
+  //           }
+  //         ]
+  //       }
+  //     }
+  map<string, ContactDetails> contacts = 33 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Contains compliance information for security standards associated to the
+  // finding.
+  repeated Compliance compliances = 34;
+
   // Contains more detail about the finding.
   string description = 37;
+
+  // Represents exfiltration associated with the Finding.
+  Exfiltration exfiltration = 38;
 
   // Represents IAM bindings associated with the Finding.
   repeated IamBinding iam_bindings = 39;
 
   // Next steps associate to the finding.
   string next_steps = 40;
+
+  // Containers associated with the finding. containers provides information
+  // for both Kubernetes and non-Kubernetes containers.
+  repeated Container containers = 42;
+
+  // Kubernetes resources associated with the finding.
+  Kubernetes kubernetes = 43;
 }

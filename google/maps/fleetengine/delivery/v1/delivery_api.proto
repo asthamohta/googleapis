@@ -20,6 +20,7 @@ import "google/api/annotations.proto";
 import "google/api/client.proto";
 import "google/api/field_behavior.proto";
 import "google/api/resource.proto";
+import "google/api/routing.proto";
 import "google/geo/type/viewport.proto";
 import "google/maps/fleetengine/delivery/v1/delivery_vehicles.proto";
 import "google/maps/fleetengine/delivery/v1/header.proto";
@@ -46,6 +47,12 @@ service DeliveryService {
       post: "/v1/{parent=providers/*}/deliveryVehicles"
       body: "delivery_vehicle"
     };
+    option (google.api.routing) = {
+      routing_parameters {
+        field: "parent"
+        path_template: "{provider_id=providers/*}"
+      }
+    };
     option (google.api.method_signature) = "parent,delivery_vehicle,delivery_vehicle_id";
   }
 
@@ -53,6 +60,12 @@ service DeliveryService {
   rpc GetDeliveryVehicle(GetDeliveryVehicleRequest) returns (DeliveryVehicle) {
     option (google.api.http) = {
       get: "/v1/{name=providers/*/deliveryVehicles/*}"
+    };
+    option (google.api.routing) = {
+      routing_parameters {
+        field: "name"
+        path_template: "{provider_id=providers/*}"
+      }
     };
     option (google.api.method_signature) = "name";
   }
@@ -62,14 +75,34 @@ service DeliveryService {
   // `DeliveryVehicle`. You *can* update `remaining_vehicle_journey_segments`
   // though, but it must contain all of the `VehicleJourneySegment`s currently
   // on the `DeliveryVehicle`. The `task_id`s are retrieved from
-  // `remaining_vehicle_journey_segments, and their corresponding `Tasks` are
+  // `remaining_vehicle_journey_segments`, and their corresponding `Tasks` are
   // assigned to the `DeliveryVehicle` if they have not yet been assigned.
   rpc UpdateDeliveryVehicle(UpdateDeliveryVehicleRequest) returns (DeliveryVehicle) {
     option (google.api.http) = {
       patch: "/v1/{delivery_vehicle.name=providers/*/deliveryVehicles/*}"
       body: "delivery_vehicle"
     };
+    option (google.api.routing) = {
+      routing_parameters {
+        field: "delivery_vehicle.name"
+        path_template: "{provider_id=providers/*}"
+      }
+    };
     option (google.api.method_signature) = "delivery_vehicle,update_mask";
+  }
+
+  // Creates and returns a batch of new `Task` objects.
+  rpc BatchCreateTasks(BatchCreateTasksRequest) returns (BatchCreateTasksResponse) {
+    option (google.api.http) = {
+      post: "/v1/{parent=providers/*}/tasks:batchCreate"
+      body: "*"
+    };
+    option (google.api.routing) = {
+      routing_parameters {
+        field: "parent"
+        path_template: "{provider_id=providers/*}"
+      }
+    };
   }
 
   // Creates and returns a new `Task` object.
@@ -77,6 +110,12 @@ service DeliveryService {
     option (google.api.http) = {
       post: "/v1/{parent=providers/*}/tasks"
       body: "task"
+    };
+    option (google.api.routing) = {
+      routing_parameters {
+        field: "parent"
+        path_template: "{provider_id=providers/*}"
+      }
     };
     option (google.api.method_signature) = "parent,task,task_id";
   }
@@ -86,6 +125,12 @@ service DeliveryService {
     option (google.api.http) = {
       get: "/v1/{name=providers/*/tasks/*}"
     };
+    option (google.api.routing) = {
+      routing_parameters {
+        field: "name"
+        path_template: "{provider_id=providers/*}"
+      }
+    };
     option (google.api.method_signature) = "name";
   }
 
@@ -93,6 +138,12 @@ service DeliveryService {
   rpc SearchTasks(SearchTasksRequest) returns (SearchTasksResponse) {
     option (google.api.http) = {
       get: "/v1/{parent=providers/*}/tasks:search"
+    };
+    option (google.api.routing) = {
+      routing_parameters {
+        field: "parent"
+        path_template: "{provider_id=providers/*}"
+      }
     };
     option (google.api.method_signature) = "parent";
   }
@@ -103,6 +154,12 @@ service DeliveryService {
       patch: "/v1/{task.name=providers/*/tasks/*}"
       body: "task"
     };
+    option (google.api.routing) = {
+      routing_parameters {
+        field: "task.name"
+        path_template: "{provider_id=providers/*}"
+      }
+    };
     option (google.api.method_signature) = "task,update_mask";
   }
 
@@ -111,6 +168,12 @@ service DeliveryService {
     option (google.api.http) = {
       get: "/v1/{parent=providers/*}/tasks"
     };
+    option (google.api.routing) = {
+      routing_parameters {
+        field: "parent"
+        path_template: "{provider_id=providers/*}"
+      }
+    };
     option (google.api.method_signature) = "parent";
   }
 
@@ -118,6 +181,12 @@ service DeliveryService {
   rpc ListDeliveryVehicles(ListDeliveryVehiclesRequest) returns (ListDeliveryVehiclesResponse) {
     option (google.api.http) = {
       get: "/v1/{parent=providers/*}/deliveryVehicles"
+    };
+    option (google.api.routing) = {
+      routing_parameters {
+        field: "parent"
+        path_template: "{provider_id=providers/*}"
+      }
     };
     option (google.api.method_signature) = "parent";
   }
@@ -248,7 +317,41 @@ message UpdateDeliveryVehicleRequest {
 
   // Required. A field mask that indicates which `DeliveryVehicle` fields to
   // update. Note that the update_mask must contain at least one field.
+  //
+  // This is a comma-separated list of fully qualified names of fields. Example:
+  // `"remaining_vehicle_journey_segments"`.
   google.protobuf.FieldMask update_mask = 4 [(google.api.field_behavior) = REQUIRED];
+}
+
+// The `BatchCreateTask` request message.
+message BatchCreateTasksRequest {
+  // Optional. The standard Delivery API request header.
+  // Note: If you set this field, then the header field in the
+  // `CreateTaskRequest` messages must either be empty, or it must match this
+  // field.
+  DeliveryRequestHeader header = 1 [(google.api.field_behavior) = OPTIONAL];
+
+  // Required. The parent resource shared by all tasks. This value must be in the format
+  // `providers/{provider}`. The `provider` must be the Google Cloud Project ID.
+  // For example, `sample-cloud-project`. The parent field in the
+  // `CreateTaskRequest` messages must either  be empty, or it must match this
+  // field.
+  string parent = 3 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.resource_reference) = {
+      child_type: "fleetengine.googleapis.com/Task"
+    }
+  ];
+
+  // Required. The request message that specifies the resources to create.
+  // Note: You can create a maximum of 500 tasks in a batch.
+  repeated CreateTaskRequest requests = 4 [(google.api.field_behavior) = REQUIRED];
+}
+
+// The `BatchCreateTask` response message.
+message BatchCreateTasksResponse {
+  // The created Tasks.
+  repeated Task tasks = 1;
 }
 
 // The `CreateTask` request message.
@@ -376,6 +479,9 @@ message UpdateTaskRequest {
 
   // Required. The field mask that indicates which Task fields to update.
   // Note: The `update_mask` must contain at least one field.
+  //
+  // This is a comma-separated list of fully qualified names of fields. Example:
+  // `"task_outcome,task_outcome_time,task_outcome_location"`.
   google.protobuf.FieldMask update_mask = 4 [(google.api.field_behavior) = REQUIRED];
 }
 

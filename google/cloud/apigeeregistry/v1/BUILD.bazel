@@ -43,6 +43,8 @@ proto_library_with_info(
     deps = [
         ":apigeeregistry_proto",
         "//google/cloud:common_resources_proto",
+        "//google/cloud/location:location_proto",
+        "//google/iam/v1:iam_policy_proto",
     ],
 )
 
@@ -77,17 +79,24 @@ java_gapic_library(
     service_yaml = "apigeeregistry_v1.yaml",
     test_deps = [
         ":apigeeregistry_java_grpc",
+        "//google/cloud/location:location_java_grpc",
+        "//google/iam/v1:iam_java_grpc",
     ],
+    transport = "grpc+rest",
     deps = [
         ":apigeeregistry_java_proto",
         "//google/api:api_java_proto",
+        "//google/cloud/location:location_java_proto",
+        "//google/iam/v1:iam_java_proto",
     ],
 )
 
 java_gapic_test(
     name = "apigeeregistry_java_gapic_test_suite",
     test_classes = [
+        "com.google.cloud.apigeeregistry.v1.ProvisioningClientHttpJsonTest",
         "com.google.cloud.apigeeregistry.v1.ProvisioningClientTest",
+        "com.google.cloud.apigeeregistry.v1.RegistryClientHttpJsonTest",
         "com.google.cloud.apigeeregistry.v1.RegistryClientTest",
     ],
     runtime_deps = [":apigeeregistry_java_gapic_test"],
@@ -96,6 +105,8 @@ java_gapic_test(
 # Open Source Packages
 java_gapic_assembly_gradle_pkg(
     name = "google-cloud-apigeeregistry-v1-java",
+    include_samples = True,
+    transport = "grpc+rest",
     deps = [
         ":apigeeregistry_java_gapic",
         ":apigeeregistry_java_grpc",
@@ -132,14 +143,16 @@ go_gapic_library(
     srcs = [":apigeeregistry_proto_with_info"],
     grpc_service_config = "apigeeregistry_grpc_service_config.json",
     importpath = "cloud.google.com/go/apigeeregistry/apiv1;apigeeregistry",
-    service_yaml = "apigeeregistry_v1.yaml",
     metadata = True,
+    service_yaml = "apigeeregistry_v1.yaml",
     deps = [
         ":apigeeregistry_go_proto",
         "//google/api:httpbody_go_proto",
+        "//google/cloud/location:location_go_proto",
+        "//google/iam/v1:iam_go_proto",
         "//google/longrunning:longrunning_go_proto",
-        "@com_google_cloud_go//longrunning/autogen:go_default_library",
         "@com_google_cloud_go//longrunning:go_default_library",
+        "@com_google_cloud_go//longrunning/autogen:go_default_library",
     ],
 )
 
@@ -155,8 +168,8 @@ go_gapic_assembly_pkg(
     name = "gapi-cloud-apigeeregistry-v1-go",
     deps = [
         ":apigeeregistry_go_gapic",
-        ":apigeeregistry_go_gapic_srcjar-test.srcjar",
         ":apigeeregistry_go_gapic_srcjar-metadata.srcjar",
+        ":apigeeregistry_go_gapic_srcjar-test.srcjar",
         ":apigeeregistry_go_proto",
     ],
 )
@@ -168,13 +181,32 @@ load(
     "@com_google_googleapis_imports//:imports.bzl",
     "py_gapic_assembly_pkg",
     "py_gapic_library",
+    "py_test",
 )
 
 py_gapic_library(
     name = "apigeeregistry_py_gapic",
     srcs = [":apigeeregistry_proto"],
     grpc_service_config = "apigeeregistry_grpc_service_config.json",
+    opt_args = [
+        "warehouse-package-name=google-cloud-apigee-registry",
+        "python-gapic-namespace=google.cloud",
+        "python-gapic-name=apigee_registry",
+    ],
     service_yaml = "apigeeregistry_v1.yaml",
+)
+
+py_test(
+    name = "apigeeregistry_py_gapic_test",
+    srcs = [
+        "apigeeregistry_py_gapic_pytest.py",
+        "apigeeregistry_py_gapic_test.py",
+    ],
+    legacy_create_init = False,
+    deps = [
+        ":apigeeregistry_py_gapic",
+        "//google/iam/v1:iam_policy_py_proto",
+    ],
 )
 
 # Open Source Packages
@@ -261,8 +293,8 @@ nodejs_gapic_assembly_pkg(
 ##############################################################################
 load(
     "@com_google_googleapis_imports//:imports.bzl",
-    "ruby_gapic_assembly_pkg",
     "ruby_cloud_gapic_library",
+    "ruby_gapic_assembly_pkg",
     "ruby_grpc_library",
     "ruby_proto_library",
 )
@@ -282,9 +314,15 @@ ruby_cloud_gapic_library(
     name = "apigeeregistry_ruby_gapic",
     srcs = [":apigeeregistry_proto_with_info"],
     extra_protoc_parameters = [
-        "ruby-cloud-gem-name=google-cloud-apigeeregistry-v1",
+        "ruby-cloud-api-id=apigeeregistry.googleapis.com",
+        "ruby-cloud-api-shortname=apigeeregistry",
+        "ruby-cloud-gem-name=google-cloud-apigee_registry-v1",
+        "ruby-cloud-product-url=https://cloud.google.com/apigee/docs/api-hub/get-started-registry-api/",
     ],
     grpc_service_config = "apigeeregistry_grpc_service_config.json",
+    ruby_cloud_description = "The Apigee Registry API allows teams to upload and share machine-readable descriptions of APIs that are in use and in development. These descriptions include API specifications in standard formats like OpenAPI, the Google API Discovery Service Format, and the Protocol Buffers Language. These API specifications can be used by tools like linters, browsers, documentation generators, test runners, proxies, and API client and server generators. The Registry API itself can be seen as a machine-readable enterprise API catalog designed to back online directories, portals, and workflow managers.",
+    ruby_cloud_title = "Apigee Registry V1",
+    service_yaml = "apigeeregistry_v1.yaml",
     deps = [
         ":apigeeregistry_ruby_grpc",
         ":apigeeregistry_ruby_proto",

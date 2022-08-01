@@ -68,6 +68,7 @@ java_gapic_library(
     test_deps = [
         ":language_java_grpc",
     ],
+    transport = "grpc+rest",
     deps = [
         ":language_java_proto",
     ],
@@ -76,6 +77,7 @@ java_gapic_library(
 java_gapic_test(
     name = "language_java_gapic_test_suite",
     test_classes = [
+        "com.google.cloud.language.v1.LanguageServiceClientHttpJsonTest",
         "com.google.cloud.language.v1.LanguageServiceClientTest",
     ],
     runtime_deps = [":language_java_gapic_test"],
@@ -84,6 +86,8 @@ java_gapic_test(
 # Open Source Packages
 java_gapic_assembly_gradle_pkg(
     name = "google-cloud-language-v1-java",
+    include_samples = True,
+    transport = "grpc+rest",
     deps = [
         ":language_java_gapic",
         ":language_java_grpc",
@@ -120,6 +124,7 @@ go_gapic_library(
     importpath = "cloud.google.com/go/language/apiv1;language",
     metadata = True,
     service_yaml = "language_v1.yaml",
+    transport = "grpc+rest",
     deps = [
         ":language_go_proto",
     ],
@@ -150,12 +155,23 @@ load(
     "@com_google_googleapis_imports//:imports.bzl",
     "py_gapic_assembly_pkg",
     "py_gapic_library",
+    "py_test",
 )
 
 py_gapic_library(
     name = "language_py_gapic",
     srcs = [":language_proto"],
     grpc_service_config = "language_grpc_service_config.json",
+)
+
+py_test(
+    name = "language_py_gapic_test",
+    srcs = [
+        "language_py_gapic_pytest.py",
+        "language_py_gapic_test.py",
+    ],
+    legacy_create_init = False,
+    deps = [":language_py_gapic"],
 )
 
 # Open Source Packages

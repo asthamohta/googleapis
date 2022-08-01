@@ -66,6 +66,7 @@ java_gapic_library(
     test_deps = [
         ":bigquery_java_grpc",
     ],
+    transport = "grpc+rest",
     deps = [
         ":bigquery_java_proto",
     ],
@@ -74,6 +75,7 @@ java_gapic_library(
 java_gapic_test(
     name = "bigquery_java_gapic_test_suite",
     test_classes = [
+        "com.google.cloud.bigquery.v2.ModelServiceClientHttpJsonTest",
         "com.google.cloud.bigquery.v2.ModelServiceClientTest",
     ],
     runtime_deps = [":bigquery_java_gapic_test"],
@@ -82,6 +84,8 @@ java_gapic_test(
 # Open Source Packages
 java_gapic_assembly_gradle_pkg(
     name = "google-cloud-bigquery-v2-java",
+    include_samples = True,
+    transport = "grpc+rest",
     deps = [
         ":bigquery_java_gapic",
         ":bigquery_java_grpc",
@@ -117,6 +121,7 @@ go_gapic_library(
     grpc_service_config = "bigquery_grpc_service_config.json",
     importpath = "cloud.google.com/go/bigquery/apiv2;bigquery",
     service_yaml = "bigquery_v2.yaml",
+    transport = "grpc+rest",
     deps = [
         ":bigquery_go_proto",
     ],
@@ -152,8 +157,19 @@ py_gapic_library(
     name = "bigquery_py_gapic",
     srcs = [":bigquery_proto"],
     grpc_service_config = "bigquery_grpc_service_config.json",
-    opt_args=["autogen-snippets=False"]
+    opt_args = ["autogen-snippets=False"],
 )
+
+# Uncomment once https://github.com/googleapis/gapic-generator-python/issues/1372 is fixed
+#py_test(
+#    name = "bigquery_py_gapic_test",
+#    srcs = [
+#        "bigquery_py_gapic_pytest.py",
+#        "bigquery_py_gapic_test.py",
+#    ],
+#    legacy_create_init = False,
+#    deps = [":bigquery_py_gapic"],
+#)
 
 py_gapic_assembly_pkg(
     name = "bigquery-v2-py",
@@ -239,8 +255,8 @@ nodejs_gapic_assembly_pkg(
 ##############################################################################
 load(
     "@com_google_googleapis_imports//:imports.bzl",
-    "ruby_gapic_assembly_pkg",
     "ruby_cloud_gapic_library",
+    "ruby_gapic_assembly_pkg",
     "ruby_grpc_library",
     "ruby_proto_library",
 )
@@ -258,7 +274,7 @@ ruby_grpc_library(
 
 ruby_cloud_gapic_library(
     name = "bigquery_ruby_gapic",
-    srcs = [":bigquery_proto_with_info",],
+    srcs = [":bigquery_proto_with_info"],
     extra_protoc_parameters = ["ruby-cloud-gem-name=google-cloud-bigquery-v2"],
     deps = [
         ":bigquery_ruby_grpc",

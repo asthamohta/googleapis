@@ -81,6 +81,7 @@ java_gapic_library(
     test_deps = [
         ":deploy_java_grpc",
     ],
+    transport = "grpc+rest",
     deps = [
         ":deploy_java_proto",
         "//google/api:api_java_proto",
@@ -90,6 +91,7 @@ java_gapic_library(
 java_gapic_test(
     name = "deploy_java_gapic_test_suite",
     test_classes = [
+        "com.google.cloud.deploy.v1.CloudDeployClientHttpJsonTest",
         "com.google.cloud.deploy.v1.CloudDeployClientTest",
     ],
     runtime_deps = [":deploy_java_gapic_test"],
@@ -98,6 +100,8 @@ java_gapic_test(
 # Open Source Packages
 java_gapic_assembly_gradle_pkg(
     name = "google-cloud-deploy-v1-java",
+    include_samples = True,
+    transport = "grpc+rest",
     deps = [
         ":deploy_java_gapic",
         ":deploy_java_grpc",
@@ -136,6 +140,7 @@ go_gapic_library(
     importpath = "cloud.google.com/go/deploy/apiv1;deploy",
     metadata = True,
     service_yaml = "clouddeploy_v1.yaml",
+    transport = "grpc+rest",
     deps = [
         ":deploy_go_proto",
         "//google/longrunning:longrunning_go_proto",
@@ -169,12 +174,23 @@ load(
     "@com_google_googleapis_imports//:imports.bzl",
     "py_gapic_assembly_pkg",
     "py_gapic_library",
+    "py_test",
 )
 
 py_gapic_library(
     name = "deploy_py_gapic",
     srcs = [":deploy_proto"],
     grpc_service_config = "clouddeploy_grpc_service_config.json",
+)
+
+py_test(
+    name = "deploy_py_gapic_test",
+    srcs = [
+        "deploy_py_gapic_pytest.py",
+        "deploy_py_gapic_test.py",
+    ],
+    legacy_create_init = False,
+    deps = [":deploy_py_gapic"],
 )
 
 # Open Source Packages

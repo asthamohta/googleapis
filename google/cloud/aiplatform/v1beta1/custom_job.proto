@@ -19,6 +19,7 @@ package google.cloud.aiplatform.v1beta1;
 import "google/api/field_behavior.proto";
 import "google/api/resource.proto";
 import "google/cloud/aiplatform/v1beta1/encryption_spec.proto";
+import "google/cloud/aiplatform/v1beta1/env_var.proto";
 import "google/cloud/aiplatform/v1beta1/io.proto";
 import "google/cloud/aiplatform/v1beta1/job_state.proto";
 import "google/cloud/aiplatform/v1beta1/machine_resources.proto";
@@ -105,7 +106,7 @@ message CustomJob {
 }
 
 // Represents the spec of a CustomJob.
-// Next Id: 14
+// Next Id: 15
 message CustomJobSpec {
   // Required. The spec of the worker pools including machine type and Docker image.
   // All worker pools except the first one are optional and can be skipped by
@@ -122,7 +123,7 @@ message CustomJobSpec {
   // for the CustomJob's project is used.
   string service_account = 4;
 
-  // The full name of the Compute Engine
+  // Optional. The full name of the Compute Engine
   // [network](/compute/docs/networks-and-firewalls#networks) to which the Job
   // should be peered. For example, `projects/12345/global/networks/myVPC`.
   // [Format](/compute/docs/reference/rest/v1/networks/insert)
@@ -135,9 +136,12 @@ message CustomJobSpec {
   // AI](https://cloud.google.com/vertex-ai/docs/general/vpc-peering).
   //
   // If this field is left unspecified, the job is not peered with any network.
-  string network = 5 [(google.api.resource_reference) = {
-                        type: "compute.googleapis.com/Network"
-                      }];
+  string network = 5 [
+    (google.api.field_behavior) = OPTIONAL,
+    (google.api.resource_reference) = {
+      type: "compute.googleapis.com/Network"
+    }
+  ];
 
   // Optional. A list of names for the reserved ip ranges under the VPC network
   // that can be used for this job.
@@ -232,6 +236,10 @@ message ContainerSpec {
 
   // The arguments to be passed when starting the container.
   repeated string args = 3;
+
+  // Environment variables to be passed to the container.
+  // Maximum limit is 100.
+  repeated EnvVar env = 4;
 }
 
 // The spec of a Python packaged code.
@@ -254,6 +262,10 @@ message PythonPackageSpec {
 
   // Command line arguments to be passed to the Python task.
   repeated string args = 4;
+
+  // Environment variables to be passed to the python module.
+  // Maximum limit is 100.
+  repeated EnvVar env = 5;
 }
 
 // All parameters related to queuing and scheduling of custom jobs.

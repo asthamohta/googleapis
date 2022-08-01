@@ -78,6 +78,7 @@ java_gapic_library(
     test_deps = [
         ":publish_java_grpc",
     ],
+    transport = "grpc+rest",
     deps = [
         ":publish_java_proto",
         "//google/api:api_java_proto",
@@ -87,6 +88,7 @@ java_gapic_library(
 java_gapic_test(
     name = "publish_java_gapic_test_suite",
     test_classes = [
+        "com.google.streetview.publish.v1.StreetViewPublishServiceClientHttpJsonTest",
         "com.google.streetview.publish.v1.StreetViewPublishServiceClientTest",
     ],
     runtime_deps = [":publish_java_gapic_test"],
@@ -95,6 +97,7 @@ java_gapic_test(
 # Open Source Packages
 java_gapic_assembly_gradle_pkg(
     name = "google-cloud-streetview-publish-v1-java",
+    transport = "grpc+rest",
     deps = [
         ":publish_java_gapic",
         ":publish_java_grpc",
@@ -134,6 +137,7 @@ go_gapic_library(
     importpath = "google.golang.org/google/streetview/publish/v1;publish",
     metadata = True,
     service_yaml = "streetviewpublish.yaml",
+    transport = "grpc+rest",
     deps = [
         ":publish_go_proto",
         "//google/longrunning:longrunning_go_proto",
@@ -174,6 +178,19 @@ py_gapic_library(
     srcs = [":publish_proto"],
     grpc_service_config = "streetview_publish_grpc_service_config.json",
 )
+
+# Uncomment once https://github.com/googleapis/gapic-generator-python/issues/1375 is fixed
+#py_test(
+#    name = "publish_py_gapic_test",
+#    srcs = [
+#        "publish_py_gapic_pytest.py",
+#        "publish_py_gapic_test.py",
+#    ],
+#    legacy_create_init = False,
+#    deps = [
+#        ":publish_py_gapic",
+#    ],
+#)
 
 # Open Source Packages
 py_gapic_assembly_pkg(

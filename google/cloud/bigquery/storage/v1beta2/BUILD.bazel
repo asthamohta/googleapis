@@ -85,6 +85,7 @@ java_gapic_test(
 # Open Source Packages
 java_gapic_assembly_gradle_pkg(
     name = "google-cloud-bigquery-storage-v1beta2-java",
+    include_samples = True,
     deps = [
         ":storage_java_gapic",
         ":storage_java_grpc",
@@ -162,6 +163,17 @@ py_gapic_library(
         "python-gapic-name=bigquery_storage",
     ],
 )
+
+# Uncomment once https://github.com/googleapis/gapic-generator-python/issues/1374 is fixed
+#py_test(
+#    name = "storage_py_gapic_test",
+#    srcs = [
+#        "storage_py_gapic_pytest.py",
+#        "storage_py_gapic_test.py",
+#    ],
+#    legacy_create_init = False,
+#    deps = [":storage_py_gapic"],
+#)
 
 py_gapic_assembly_pkg(
     name = "bigquery-storage-v1beta2-py",

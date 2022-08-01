@@ -74,6 +74,7 @@ java_gapic_library(
     test_deps = [
         ":gkehub_java_grpc",
     ],
+    transport = "grpc+rest",
     deps = [
         ":gkehub_java_proto",
         "//google/api:api_java_proto",
@@ -83,6 +84,7 @@ java_gapic_library(
 java_gapic_test(
     name = "gkehub_java_gapic_test_suite",
     test_classes = [
+        "com.google.cloud.gkehub.v1alpha2.GkeHubClientHttpJsonTest",
         "com.google.cloud.gkehub.v1alpha2.GkeHubClientTest",
     ],
     runtime_deps = [":gkehub_java_gapic_test"],
@@ -91,6 +93,8 @@ java_gapic_test(
 # Open Source Packages
 java_gapic_assembly_gradle_pkg(
     name = "google-cloud-gkehub-v1alpha2-java",
+    include_samples = True,
+    transport = "grpc+rest",
     deps = [
         ":gkehub_java_gapic",
         ":gkehub_java_grpc",
@@ -128,6 +132,7 @@ go_gapic_library(
     importpath = "cloud.google.com/go/gkehub/apiv1alpha2;gkehub",
     metadata = True,
     service_yaml = "gkehub_v1alpha2.yaml",
+    transport = "grpc+rest",
     deps = [
         ":gkehub_go_proto",
         "//google/longrunning:longrunning_go_proto",
@@ -161,6 +166,7 @@ load(
     "@com_google_googleapis_imports//:imports.bzl",
     "py_gapic_assembly_pkg",
     "py_gapic_library",
+    "py_test",
 )
 
 py_gapic_library(
@@ -168,6 +174,16 @@ py_gapic_library(
     srcs = [":gkehub_proto"],
     grpc_service_config = "membership_grpc_service_config.json",
     opt_args = ["warehouse-package-name=google-cloud-gke-hub"],
+)
+
+py_test(
+    name = "gkehub_py_gapic_test",
+    srcs = [
+        "gkehub_py_gapic_pytest.py",
+        "gkehub_py_gapic_test.py",
+    ],
+    legacy_create_init = False,
+    deps = [":gkehub_py_gapic"],
 )
 
 # Open Source Packages

@@ -67,6 +67,7 @@ java_gapic_library(
         ":storage_java_grpc",
         "//google/iam/v1:iam_java_grpc",
     ],
+    transport = "grpc+rest",
     deps = [
         ":storage_java_proto",
         "//google/iam/v1:iam_java_proto",
@@ -76,6 +77,7 @@ java_gapic_library(
 java_gapic_test(
     name = "storage_java_gapic_test_suite",
     test_classes = [
+        "com.google.cloud.google.storage.v1.StorageClientHttpJsonTest",
         "com.google.cloud.google.storage.v1.StorageClientTest",
     ],
     runtime_deps = [":storage_java_gapic_test"],
@@ -84,6 +86,7 @@ java_gapic_test(
 # Open Source Packages
 java_gapic_assembly_gradle_pkg(
     name = "google-cloud-storage-v1-java",
+    transport = "grpc+rest",
     deps = [
         ":storage_java_gapic",
         ":storage_java_grpc",
@@ -150,12 +153,26 @@ load(
     "@com_google_googleapis_imports//:imports.bzl",
     "py_gapic_assembly_pkg",
     "py_gapic_library",
+    "py_test",
 )
 
 py_gapic_library(
     name = "storage_py_gapic",
     srcs = [":storage_proto"],
     grpc_service_config = "storage_grpc_service_config.json",
+    deps = [
+        "//google/iam/v1:iam_policy_py_proto",
+    ],
+)
+
+py_test(
+    name = "storage_py_gapic_test",
+    srcs = [
+        "storage_py_gapic_pytest.py",
+        "storage_py_gapic_test.py",
+    ],
+    legacy_create_init = False,
+    deps = [":storage_py_gapic"],
 )
 
 # Open Source Packages
@@ -248,8 +265,8 @@ nodejs_gapic_assembly_pkg(
 ##############################################################################
 load(
     "@com_google_googleapis_imports//:imports.bzl",
-    "ruby_gapic_assembly_pkg",
     "ruby_cloud_gapic_library",
+    "ruby_gapic_assembly_pkg",
     "ruby_grpc_library",
     "ruby_proto_library",
 )
@@ -267,7 +284,7 @@ ruby_grpc_library(
 
 ruby_cloud_gapic_library(
     name = "storage_ruby_gapic",
-    srcs = [":storage_proto_with_info",],
+    srcs = [":storage_proto_with_info"],
     extra_protoc_parameters = ["ruby-cloud-gem-name=google-cloud-storage-v1"],
     deps = [
         ":storage_ruby_grpc",

@@ -31,6 +31,7 @@ proto_library(
         "//google/rpc:code_proto",
         "//google/rpc:status_proto",
         "//google/type:date_proto",
+        "@com_google_protobuf//:duration_proto",
         "@com_google_protobuf//:empty_proto",
         "@com_google_protobuf//:timestamp_proto",
         "@com_google_protobuf//:wrappers_proto",
@@ -163,6 +164,7 @@ load(
     "@com_google_googleapis_imports//:imports.bzl",
     "py_gapic_assembly_pkg",
     "py_gapic_library",
+    "py_test",
 )
 
 py_gapic_library(
@@ -173,6 +175,16 @@ py_gapic_library(
         "python-gapic-namespace=google.cloud",
         "warehouse-package-name=google-cloud-container",
     ],
+)
+
+py_test(
+    name = "container_py_gapic_test",
+    srcs = [
+        "container_py_gapic_pytest.py",
+        "container_py_gapic_test.py",
+    ],
+    legacy_create_init = False,
+    deps = [":container_py_gapic"],
 )
 
 # Open Source Packages

@@ -78,6 +78,7 @@ java_gapic_library(
         ":dataexchange_java_grpc",
         "//google/iam/v1:iam_java_grpc",
     ],
+    transport = "grpc+rest",
     deps = [
         ":dataexchange_java_proto",
         "//google/api:api_java_proto",
@@ -89,6 +90,7 @@ java_gapic_library(
 java_gapic_test(
     name = "dataexchange_java_gapic_test_suite",
     test_classes = [
+        "com.google.cloud.bigquery.dataexchange.v1beta1.AnalyticsHubServiceClientHttpJsonTest",
         "com.google.cloud.bigquery.dataexchange.v1beta1.AnalyticsHubServiceClientTest",
     ],
     runtime_deps = [":dataexchange_java_gapic_test"],
@@ -97,6 +99,8 @@ java_gapic_test(
 # Open Source Packages
 java_gapic_assembly_gradle_pkg(
     name = "google-cloud-bigquery-dataexchange-v1beta1-java",
+    include_samples = True,
+    transport = "grpc+rest",
     deps = [
         ":dataexchange_java_gapic",
         ":dataexchange_java_grpc",
@@ -136,6 +140,7 @@ go_gapic_library(
     importpath = "cloud.google.com/go/bigquery/dataexchange/apiv1beta1;dataexchange",
     metadata = True,
     service_yaml = "analyticshub_v1beta1.yaml",
+    transport = "grpc+rest",
     deps = [
         ":dataexchange_go_proto",
         "//google/cloud/bigquery/dataexchange/common:common_go_proto",
@@ -180,6 +185,17 @@ py_gapic_library(
         "python-gapic-name=bigquery_data_exchange",
     ],
 )
+
+# Uncomment once https://github.com/googleapis/gapic-generator-python/issues/1376 is fixed
+#py_test(
+#    name = "dataexchange_py_gapic_test",
+#    srcs = [
+#        "dataexchange_py_gapic_pytest.py",
+#        "dataexchange_py_gapic_test.py",
+#    ],
+#    legacy_create_init = False,
+#    deps = [":dataexchange_py_gapic"],
+#)
 
 # Open Source Packages
 py_gapic_assembly_pkg(
@@ -244,7 +260,7 @@ load(
 
 nodejs_gapic_library(
     name = "dataexchange_nodejs_gapic",
-    package_name = "@google-cloud/dataexchange",
+    package_name = "@google-cloud/bigquery-data-exchange",
     src = ":dataexchange_proto_with_info",
     extra_protoc_parameters = ["metadata"],
     grpc_service_config = "analyticshub_grpc_service_config.json",
@@ -258,6 +274,7 @@ nodejs_gapic_assembly_pkg(
     deps = [
         ":dataexchange_nodejs_gapic",
         ":dataexchange_proto",
+        "//google/cloud/bigquery/dataexchange/common:common_proto",
     ],
 )
 
