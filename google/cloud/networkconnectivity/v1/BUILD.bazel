@@ -23,7 +23,6 @@ proto_library(
     srcs = [
         "common.proto",
         "hub.proto",
-        "policy_based_routing.proto",
     ],
     deps = [
         "//google/api:annotations_proto",
@@ -88,7 +87,6 @@ java_gapic_test(
     name = "networkconnectivity_java_gapic_test_suite",
     test_classes = [
         "com.google.cloud.networkconnectivity.v1.HubServiceClientTest",
-        "com.google.cloud.networkconnectivity.v1.PolicyBasedRoutingServiceClientTest",
     ],
     runtime_deps = [":networkconnectivity_java_gapic_test"],
 )
@@ -362,6 +360,7 @@ csharp_gapic_library(
         ":networkconnectivity_csharp_grpc",
         ":networkconnectivity_csharp_proto",
     ],
+    transport = "grpc",
 )
 
 # Open Source Packages

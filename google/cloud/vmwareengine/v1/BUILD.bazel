@@ -22,6 +22,7 @@ proto_library(
     name = "vmwareengine_proto",
     srcs = [
         "vmwareengine.proto",
+        "vmwareengine_resources.proto",
     ],
     deps = [
         "//google/api:annotations_proto",
@@ -367,6 +368,7 @@ csharp_gapic_library(
         ":vmwareengine_csharp_grpc",
         ":vmwareengine_csharp_proto",
     ],
+    transport = "grpc+rest",
 )
 
 # Open Source Packages
