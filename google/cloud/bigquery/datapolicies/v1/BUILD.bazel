@@ -97,6 +97,7 @@ java_gapic_test(
 # Open Source Packages
 java_gapic_assembly_gradle_pkg(
     name = "google-cloud-bigquery-datapolicies-v1-java",
+    include_samples = True,
     transport = "grpc+rest",
     deps = [
         ":datapolicies_java_gapic",
@@ -104,7 +105,6 @@ java_gapic_assembly_gradle_pkg(
         ":datapolicies_java_proto",
         ":datapolicies_proto",
     ],
-    include_samples = True,
 )
 
 ##############################################################################
@@ -121,7 +121,7 @@ load(
 go_proto_library(
     name = "datapolicies_go_proto",
     compilers = ["@io_bazel_rules_go//proto:go_grpc"],
-    importpath = "google.golang.org/genproto/googleapis/cloud/bigquery/datapolicies/v1",
+    importpath = "cloud.google.com/go/bigquery/datapolicies/apiv1/datapoliciespb",
     protos = [":datapolicies_proto"],
     deps = [
         "//google/api:annotations_go_proto",
@@ -134,6 +134,7 @@ go_gapic_library(
     srcs = [":datapolicies_proto_with_info"],
     grpc_service_config = "datapolicies_v1_grpc_service_config.json",
     importpath = "cloud.google.com/go/bigquery/datapolicies/apiv1;datapolicies",
+    release_level = "beta",
     metadata = True,
     rest_numeric_enums = True,
     service_yaml = "bigquerydatapolicy_v1.yaml",
@@ -156,8 +157,8 @@ go_gapic_assembly_pkg(
     name = "gapi-cloud-bigquery-datapolicies-v1-go",
     deps = [
         ":datapolicies_go_gapic",
-        ":datapolicies_go_gapic_srcjar-test.srcjar",
         ":datapolicies_go_gapic_srcjar-metadata.srcjar",
+        ":datapolicies_go_gapic_srcjar-test.srcjar",
         ":datapolicies_go_proto",
     ],
 )
@@ -282,8 +283,8 @@ nodejs_gapic_assembly_pkg(
 ##############################################################################
 load(
     "@com_google_googleapis_imports//:imports.bzl",
-    "ruby_gapic_assembly_pkg",
     "ruby_cloud_gapic_library",
+    "ruby_gapic_assembly_pkg",
     "ruby_grpc_library",
     "ruby_proto_library",
 )
