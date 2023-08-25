@@ -22,7 +22,6 @@ load(
     "go_gapic_assembly_pkg",
     "go_gapic_library",
     "go_proto_library",
-    "go_test",
     "java_gapic_assembly_gradle_pkg",
     "java_gapic_library",
     "java_gapic_test",
@@ -32,11 +31,11 @@ load(
     "nodejs_gapic_library",
     "php_gapic_assembly_pkg",
     "php_gapic_library",
-    "php_grpc_library",
     "php_proto_library",
     "proto_library_with_info",
     "py_gapic_assembly_pkg",
     "py_gapic_library",
+    "py_import",
     "ruby_cloud_gapic_library",
     "ruby_gapic_assembly_pkg",
     "ruby_grpc_library",
@@ -53,8 +52,8 @@ proto_library(
         "delivery_api.proto",
         "delivery_vehicles.proto",
         "header.proto",
-        "tasks.proto",
         "task_tracking_info.proto",
+        "tasks.proto",
     ],
     deps = [
         "//google/api:annotations_proto",
@@ -133,7 +132,7 @@ java_gapic_assembly_gradle_pkg(
 go_proto_library(
     name = "delivery_go_proto",
     compilers = ["@io_bazel_rules_go//proto:go_grpc"],
-    importpath = "google.golang.org/genproto/googleapis/maps/fleetengine/delivery/v1",
+    importpath = "cloud.google.com/go/maps/fleetengine/delivery/apiv1/deliverypb",
     protos = [":delivery_proto"],
     deps = [
         "//google/api:annotations_go_proto",
@@ -146,7 +145,7 @@ go_gapic_library(
     name = "delivery_go_gapic",
     srcs = [":delivery_proto_with_info"],
     grpc_service_config = "//google/maps/fleetengine/v1:fleetengine_grpc_service_config.json",
-    importpath = "google.golang.org/maps/fleetengine/delivery/v1;delivery",
+    importpath = "cloud.google.com/go/maps/fleetengine/delivery/apiv1;delivery",
     metadata = True,
     rest_numeric_enums = True,
     service_yaml = "fleetengine.yaml",
@@ -157,21 +156,22 @@ go_gapic_library(
     ],
 )
 
-go_test(
-    name = "delivery_go_gapic_test",
-    srcs = [":delivery_go_gapic_srcjar_test"],
-    embed = [":delivery_go_gapic"],
-    importpath = "google.golang.org/maps/fleetengine/delivery/v1",
-)
-
 # Open Source Packages
 go_gapic_assembly_pkg(
     name = "gapi-maps-fleetengine-delivery-v1-go",
     deps = [
         ":delivery_go_gapic",
         ":delivery_go_gapic_srcjar-metadata.srcjar",
+        ":delivery_go_gapic_srcjar-snippets.srcjar",
         ":delivery_go_gapic_srcjar-test.srcjar",
         ":delivery_go_proto",
+    ],
+)
+
+py_import(
+    name = "viewport",
+    srcs = [
+        "//google/geo/type:viewport_py_gapic",
     ],
 )
 
@@ -179,24 +179,26 @@ py_gapic_library(
     name = "delivery_py_gapic",
     srcs = [":delivery_proto"],
     grpc_service_config = "//google/maps/fleetengine/v1:fleetengine_grpc_service_config.json",
+    opt_args = [
+        "proto-plus-deps=google.geo.type",
+    ],
     rest_numeric_enums = True,
     service_yaml = "fleetengine.yaml",
     transport = "grpc+rest",
     deps = [
-        "//google/geo/type:viewport_py_proto",
+        ":viewport",
     ],
 )
 
-# Uncomment once https://github.com/googleapis/gapic-generator-python/issues/1371 is fixed
-#py_test(
-#    name = "delivery_py_gapic_test",
-#    srcs = [
-#        "delivery_py_gapic_pytest.py",
-#        "delivery_py_gapic_test.py",
-#    ],
-#    legacy_create_init = False,
-#    deps = [":delivery_py_gapic"],
-#)
+py_test(
+    name = "delivery_py_gapic_test",
+    srcs = [
+        "delivery_py_gapic_pytest.py",
+        "delivery_py_gapic_test.py",
+    ],
+    legacy_create_init = False,
+    deps = [":delivery_py_gapic"],
+)
 
 # Open Source Packages
 py_gapic_assembly_pkg(
@@ -211,12 +213,6 @@ php_proto_library(
     deps = [":delivery_proto"],
 )
 
-php_grpc_library(
-    name = "delivery_php_grpc",
-    srcs = [":delivery_proto"],
-    deps = [":delivery_php_proto"],
-)
-
 php_gapic_library(
     name = "delivery_php_gapic",
     srcs = [":delivery_proto_with_info"],
@@ -224,10 +220,7 @@ php_gapic_library(
     rest_numeric_enums = True,
     service_yaml = "fleetengine.yaml",
     transport = "grpc+rest",
-    deps = [
-        ":delivery_php_grpc",
-        ":delivery_php_proto",
-    ],
+    deps = [":delivery_php_proto"],
 )
 
 # Open Source Packages
@@ -235,7 +228,6 @@ php_gapic_assembly_pkg(
     name = "google-maps-fleetengine-delivery-v1-php",
     deps = [
         ":delivery_php_gapic",
-        ":delivery_php_grpc",
         ":delivery_php_proto",
     ],
 )
@@ -282,6 +274,7 @@ ruby_cloud_gapic_library(
     grpc_service_config = "//google/maps/fleetengine/v1:fleetengine_grpc_service_config.json",
     rest_numeric_enums = True,
     service_yaml = "fleetengine.yaml",
+    transport = "grpc+rest",
     deps = [
         ":delivery_ruby_grpc",
         ":delivery_ruby_proto",
@@ -315,9 +308,9 @@ csharp_gapic_library(
     common_resources_config = "@gax_dotnet//:Google.Api.Gax/ResourceNames/CommonResourcesConfig.json",
     grpc_service_config = "//google/maps/fleetengine/v1:fleetengine_grpc_service_config.json",
     rest_numeric_enums = True,
-# Currently the service YAML file refers to APIs from the "base" fleetengine
-# API. This needs fixing before we can publish this API for C#.
-#   service_yaml = "fleetengine.yaml",
+    # Currently the service YAML file refers to APIs from the "base" fleetengine
+    # API. This needs fixing before we can publish this API for C#.
+    #   service_yaml = "fleetengine.yaml",
     transport = "grpc+rest",
     deps = [
         ":delivery_csharp_grpc",

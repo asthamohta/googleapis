@@ -11,11 +11,14 @@ apis:
 - name: google.cloud.aiplatform.v1.IndexEndpointService
 - name: google.cloud.aiplatform.v1.IndexService
 - name: google.cloud.aiplatform.v1.JobService
+- name: google.cloud.aiplatform.v1.MatchService
 - name: google.cloud.aiplatform.v1.MetadataService
 - name: google.cloud.aiplatform.v1.MigrationService
+- name: google.cloud.aiplatform.v1.ModelGardenService
 - name: google.cloud.aiplatform.v1.ModelService
 - name: google.cloud.aiplatform.v1.PipelineService
 - name: google.cloud.aiplatform.v1.PredictionService
+- name: google.cloud.aiplatform.v1.ScheduleService
 - name: google.cloud.aiplatform.v1.SpecialistPoolService
 - name: google.cloud.aiplatform.v1.TensorboardService
 - name: google.cloud.aiplatform.v1.VizierService
@@ -35,6 +38,7 @@ types:
 - name: google.cloud.aiplatform.v1.CopyModelOperationMetadata
 - name: google.cloud.aiplatform.v1.CopyModelResponse
 - name: google.cloud.aiplatform.v1.CreateDatasetOperationMetadata
+- name: google.cloud.aiplatform.v1.CreateDatasetVersionOperationMetadata
 - name: google.cloud.aiplatform.v1.CreateEndpointOperationMetadata
 - name: google.cloud.aiplatform.v1.CreateEntityTypeOperationMetadata
 - name: google.cloud.aiplatform.v1.CreateFeatureOperationMetadata
@@ -44,6 +48,8 @@ types:
 - name: google.cloud.aiplatform.v1.CreateMetadataStoreOperationMetadata
 - name: google.cloud.aiplatform.v1.CreateSpecialistPoolOperationMetadata
 - name: google.cloud.aiplatform.v1.CreateTensorboardOperationMetadata
+- name: google.cloud.aiplatform.v1.DeleteFeatureValuesOperationMetadata
+- name: google.cloud.aiplatform.v1.DeleteFeatureValuesResponse
 - name: google.cloud.aiplatform.v1.DeleteMetadataStoreOperationMetadata
 - name: google.cloud.aiplatform.v1.DeleteOperationMetadata
 - name: google.cloud.aiplatform.v1.DeployIndexOperationMetadata
@@ -62,12 +68,15 @@ types:
 - name: google.cloud.aiplatform.v1.ImportFeatureValuesResponse
 - name: google.cloud.aiplatform.v1.MutateDeployedIndexOperationMetadata
 - name: google.cloud.aiplatform.v1.MutateDeployedIndexResponse
+- name: google.cloud.aiplatform.v1.MutateDeployedModelOperationMetadata
+- name: google.cloud.aiplatform.v1.MutateDeployedModelResponse
 - name: google.cloud.aiplatform.v1.PurgeArtifactsMetadata
 - name: google.cloud.aiplatform.v1.PurgeArtifactsResponse
 - name: google.cloud.aiplatform.v1.PurgeContextsMetadata
 - name: google.cloud.aiplatform.v1.PurgeContextsResponse
 - name: google.cloud.aiplatform.v1.PurgeExecutionsMetadata
 - name: google.cloud.aiplatform.v1.PurgeExecutionsResponse
+- name: google.cloud.aiplatform.v1.RestoreDatasetVersionOperationMetadata
 - name: google.cloud.aiplatform.v1.SpecialistPool
 - name: google.cloud.aiplatform.v1.SuggestTrialsMetadata
 - name: google.cloud.aiplatform.v1.SuggestTrialsResponse
@@ -75,6 +84,8 @@ types:
 - name: google.cloud.aiplatform.v1.UndeployIndexResponse
 - name: google.cloud.aiplatform.v1.UndeployModelOperationMetadata
 - name: google.cloud.aiplatform.v1.UndeployModelResponse
+- name: google.cloud.aiplatform.v1.UpdateExplanationDatasetOperationMetadata
+- name: google.cloud.aiplatform.v1.UpdateExplanationDatasetResponse
 - name: google.cloud.aiplatform.v1.UpdateFeaturestoreOperationMetadata
 - name: google.cloud.aiplatform.v1.UpdateIndexOperationMetadata
 - name: google.cloud.aiplatform.v1.UpdateModelDeploymentMonitoringJobOperationMetadata
@@ -145,11 +156,17 @@ backend:
     deadline: 60.0
   - selector: 'google.cloud.aiplatform.v1.JobService.*'
     deadline: 60.0
+  - selector: google.cloud.aiplatform.v1.MatchService.FindNeighbors
+    deadline: 30.0
+  - selector: google.cloud.aiplatform.v1.MatchService.ReadIndexDatapoints
+    deadline: 30.0
   - selector: 'google.cloud.aiplatform.v1.MetadataService.*'
     deadline: 60.0
   - selector: google.cloud.aiplatform.v1.MigrationService.BatchMigrateResources
     deadline: 60.0
   - selector: google.cloud.aiplatform.v1.MigrationService.SearchMigratableResources
+    deadline: 60.0
+  - selector: google.cloud.aiplatform.v1.ModelGardenService.GetPublisherModel
     deadline: 60.0
   - selector: 'google.cloud.aiplatform.v1.ModelService.*'
     deadline: 60.0
@@ -157,6 +174,8 @@ backend:
     deadline: 60.0
   - selector: 'google.cloud.aiplatform.v1.PredictionService.*'
     deadline: 600.0
+  - selector: 'google.cloud.aiplatform.v1.ScheduleService.*'
+    deadline: 60.0
   - selector: 'google.cloud.aiplatform.v1.SpecialistPoolService.*'
     deadline: 60.0
   - selector: 'google.cloud.aiplatform.v1.TensorboardService.*'
@@ -188,6 +207,9 @@ http:
     - post: '/v1/{resource=projects/*/locations/*/featurestores/*/entityTypes/*}:getIamPolicy'
     - post: '/ui/{resource=projects/*/locations/*/featurestores/*}:getIamPolicy'
     - post: '/ui/{resource=projects/*/locations/*/featurestores/*/entityTypes/*}:getIamPolicy'
+    - post: '/ui/{resource=projects/*/locations/*/models/*}:getIamPolicy'
+    - post: '/ui/{resource=projects/*/locations/*/endpoints/*}:getIamPolicy'
+    - post: '/ui/{resource=projects/*/locations/*/notebookRuntimeTemplates/*}:getIamPolicy'
   - selector: google.iam.v1.IAMPolicy.SetIamPolicy
     post: '/v1/{resource=projects/*/locations/*/featurestores/*}:setIamPolicy'
     body: '*'
@@ -198,12 +220,21 @@ http:
       body: '*'
     - post: '/ui/{resource=projects/*/locations/*/featurestores/*/entityTypes/*}:setIamPolicy'
       body: '*'
+    - post: '/ui/{resource=projects/*/locations/*/models/*}:setIamPolicy'
+      body: '*'
+    - post: '/ui/{resource=projects/*/locations/*/endpoints/*}:setIamPolicy'
+      body: '*'
+    - post: '/ui/{resource=projects/*/locations/*/notebookRuntimeTemplates/*}:setIamPolicy'
+      body: '*'
   - selector: google.iam.v1.IAMPolicy.TestIamPermissions
     post: '/v1/{resource=projects/*/locations/*/featurestores/*}:testIamPermissions'
     additional_bindings:
     - post: '/v1/{resource=projects/*/locations/*/featurestores/*/entityTypes/*}:testIamPermissions'
     - post: '/ui/{resource=projects/*/locations/*/featurestores/*}:testIamPermissions'
     - post: '/ui/{resource=projects/*/locations/*/featurestores/*/entityTypes/*}:testIamPermissions'
+    - post: '/ui/{resource=projects/*/locations/*/models/*}:testIamPermissions'
+    - post: '/ui/{resource=projects/*/locations/*/endpoints/*}:testIamPermissions'
+    - post: '/ui/{resource=projects/*/locations/*/notebookRuntimeTemplates/*}:testIamPermissions'
   - selector: google.longrunning.Operations.CancelOperation
     post: '/ui/{name=projects/*/locations/*/operations/*}:cancel'
     additional_bindings:
@@ -224,6 +255,7 @@ http:
     - post: '/ui/{name=projects/*/locations/*/indexes/*/operations/*}:cancel'
     - post: '/ui/{name=projects/*/locations/*/indexEndpoints/*/operations/*}:cancel'
     - post: '/ui/{name=projects/*/locations/*/modelDeploymentMonitoringJobs/*/operations/*}:cancel'
+    - post: '/ui/{name=projects/*/locations/*/modelMonitors/*/operations/*}:cancel'
     - post: '/ui/{name=projects/*/locations/*/migratableResources/*/operations/*}:cancel'
     - post: '/ui/{name=projects/*/locations/*/models/*/operations/*}:cancel'
     - post: '/ui/{name=projects/*/locations/*/models/*/evaluations/*/operations/*}:cancel'
@@ -231,6 +263,7 @@ http:
     - post: '/ui/{name=projects/*/locations/*/studies/*/trials/*/operations/*}:cancel'
     - post: '/ui/{name=projects/*/locations/*/trainingPipelines/*/operations/*}:cancel'
     - post: '/ui/{name=projects/*/locations/*/pipelineJobs/*/operations/*}:cancel'
+    - post: '/ui/{name=projects/*/locations/*/schedules/*/operations/*}:cancel'
     - post: '/ui/{name=projects/*/locations/*/specialistPools/*/operations/*}:cancel'
     - post: '/ui/{name=projects/*/locations/*/tensorboards/*/operations/*}:cancel'
     - post: '/ui/{name=projects/*/locations/*/tensorboards/*/experiments/*/operations/*}:cancel'
@@ -260,6 +293,7 @@ http:
     - post: '/v1/{name=projects/*/locations/*/studies/*/trials/*/operations/*}:cancel'
     - post: '/v1/{name=projects/*/locations/*/trainingPipelines/*/operations/*}:cancel'
     - post: '/v1/{name=projects/*/locations/*/pipelineJobs/*/operations/*}:cancel'
+    - post: '/v1/{name=projects/*/locations/*/schedules/*/operations/*}:cancel'
     - post: '/v1/{name=projects/*/locations/*/specialistPools/*/operations/*}:cancel'
     - post: '/v1/{name=projects/*/locations/*/tensorboards/*/operations/*}:cancel'
     - post: '/v1/{name=projects/*/locations/*/tensorboards/*/experiments/*/operations/*}:cancel'
@@ -285,6 +319,7 @@ http:
     - delete: '/ui/{name=projects/*/locations/*/indexes/*/operations/*}'
     - delete: '/ui/{name=projects/*/locations/*/indexEndpoints/*/operations/*}'
     - delete: '/ui/{name=projects/*/locations/*/modelDeploymentMonitoringJobs/*/operations/*}'
+    - delete: '/ui/{name=projects/*/locations/*/modelMonitors/*/operations/*}'
     - delete: '/ui/{name=projects/*/locations/*/migratableResources/*/operations/*}'
     - delete: '/ui/{name=projects/*/locations/*/models/*/operations/*}'
     - delete: '/ui/{name=projects/*/locations/*/models/*/evaluations/*/operations/*}'
@@ -292,6 +327,7 @@ http:
     - delete: '/ui/{name=projects/*/locations/*/studies/*/trials/*/operations/*}'
     - delete: '/ui/{name=projects/*/locations/*/trainingPipelines/*/operations/*}'
     - delete: '/ui/{name=projects/*/locations/*/pipelineJobs/*/operations/*}'
+    - delete: '/ui/{name=projects/*/locations/*/schedules/*/operations/*}'
     - delete: '/ui/{name=projects/*/locations/*/specialistPools/*/operations/*}'
     - delete: '/ui/{name=projects/*/locations/*/tensorboards/*/operations/*}'
     - delete: '/ui/{name=projects/*/locations/*/tensorboards/*/experiments/*/operations/*}'
@@ -321,6 +357,7 @@ http:
     - delete: '/v1/{name=projects/*/locations/*/studies/*/trials/*/operations/*}'
     - delete: '/v1/{name=projects/*/locations/*/trainingPipelines/*/operations/*}'
     - delete: '/v1/{name=projects/*/locations/*/pipelineJobs/*/operations/*}'
+    - delete: '/v1/{name=projects/*/locations/*/schedules/*/operations/*}'
     - delete: '/v1/{name=projects/*/locations/*/specialistPools/*/operations/*}'
     - delete: '/v1/{name=projects/*/locations/*/tensorboards/*/operations/*}'
     - delete: '/v1/{name=projects/*/locations/*/tensorboards/*/experiments/*/operations/*}'
@@ -347,6 +384,7 @@ http:
     - get: '/ui/{name=projects/*/locations/*/indexes/*/operations/*}'
     - get: '/ui/{name=projects/*/locations/*/indexEndpoints/*/operations/*}'
     - get: '/ui/{name=projects/*/locations/*/modelDeploymentMonitoringJobs/*/operations/*}'
+    - get: '/ui/{name=projects/*/locations/*/modelMonitors/*/operations/*}'
     - get: '/ui/{name=projects/*/locations/*/migratableResources/*/operations/*}'
     - get: '/ui/{name=projects/*/locations/*/models/*/operations/*}'
     - get: '/ui/{name=projects/*/locations/*/models/*/evaluations/*/operations/*}'
@@ -354,6 +392,7 @@ http:
     - get: '/ui/{name=projects/*/locations/*/studies/*/trials/*/operations/*}'
     - get: '/ui/{name=projects/*/locations/*/trainingPipelines/*/operations/*}'
     - get: '/ui/{name=projects/*/locations/*/pipelineJobs/*/operations/*}'
+    - get: '/ui/{name=projects/*/locations/*/schedules/*/operations/*}'
     - get: '/ui/{name=projects/*/locations/*/specialistPools/*/operations/*}'
     - get: '/ui/{name=projects/*/locations/*/tensorboards/*/operations/*}'
     - get: '/ui/{name=projects/*/locations/*/tensorboards/*/experiments/*/operations/*}'
@@ -383,6 +422,7 @@ http:
     - get: '/v1/{name=projects/*/locations/*/studies/*/trials/*/operations/*}'
     - get: '/v1/{name=projects/*/locations/*/trainingPipelines/*/operations/*}'
     - get: '/v1/{name=projects/*/locations/*/pipelineJobs/*/operations/*}'
+    - get: '/v1/{name=projects/*/locations/*/schedules/*/operations/*}'
     - get: '/v1/{name=projects/*/locations/*/specialistPools/*/operations/*}'
     - get: '/v1/{name=projects/*/locations/*/tensorboards/*/operations/*}'
     - get: '/v1/{name=projects/*/locations/*/tensorboards/*/experiments/*/operations/*}'
@@ -408,6 +448,7 @@ http:
     - get: '/ui/{name=projects/*/locations/*/indexes/*}/operations'
     - get: '/ui/{name=projects/*/locations/*/indexEndpoints/*}/operations'
     - get: '/ui/{name=projects/*/locations/*/modelDeploymentMonitoringJobs/*}/operations'
+    - get: '/ui/{name=projects/*/locations/*/modelMonitors/*}/operations'
     - get: '/ui/{name=projects/*/locations/*/migratableResources/*}/operations'
     - get: '/ui/{name=projects/*/locations/*/models/*}/operations'
     - get: '/ui/{name=projects/*/locations/*/models/*/evaluations/*}/operations'
@@ -415,6 +456,7 @@ http:
     - get: '/ui/{name=projects/*/locations/*/studies/*/trials/*}/operations'
     - get: '/ui/{name=projects/*/locations/*/trainingPipelines/*}/operations'
     - get: '/ui/{name=projects/*/locations/*/pipelineJobs/*}/operations'
+    - get: '/ui/{name=projects/*/locations/*/schedules/*}/operations'
     - get: '/ui/{name=projects/*/locations/*/specialistPools/*}/operations'
     - get: '/ui/{name=projects/*/locations/*/tensorboards/*}/operations'
     - get: '/ui/{name=projects/*/locations/*/tensorboards/*/experiments/*}/operations'
@@ -444,6 +486,7 @@ http:
     - get: '/v1/{name=projects/*/locations/*/studies/*/trials/*}/operations'
     - get: '/v1/{name=projects/*/locations/*/trainingPipelines/*}/operations'
     - get: '/v1/{name=projects/*/locations/*/pipelineJobs/*}/operations'
+    - get: '/v1/{name=projects/*/locations/*/schedules/*}/operations'
     - get: '/v1/{name=projects/*/locations/*/specialistPools/*}/operations'
     - get: '/v1/{name=projects/*/locations/*/tensorboards/*}/operations'
     - get: '/v1/{name=projects/*/locations/*/tensorboards/*/experiments/*}/operations'
@@ -469,6 +512,7 @@ http:
     - post: '/ui/{name=projects/*/locations/*/indexes/*/operations/*}:wait'
     - post: '/ui/{name=projects/*/locations/*/indexEndpoints/*/operations/*}:wait'
     - post: '/ui/{name=projects/*/locations/*/modelDeploymentMonitoringJobs/*/operations/*}:wait'
+    - post: '/ui/{name=projects/*/locations/*/modelMonitors/*/operations/*}:wait'
     - post: '/ui/{name=projects/*/locations/*/migratableResources/*/operations/*}:wait'
     - post: '/ui/{name=projects/*/locations/*/models/*/operations/*}:wait'
     - post: '/ui/{name=projects/*/locations/*/models/*/evaluations/*/operations/*}:wait'
@@ -476,6 +520,7 @@ http:
     - post: '/ui/{name=projects/*/locations/*/studies/*/trials/*/operations/*}:wait'
     - post: '/ui/{name=projects/*/locations/*/trainingPipelines/*/operations/*}:wait'
     - post: '/ui/{name=projects/*/locations/*/pipelineJobs/*/operations/*}:wait'
+    - post: '/ui/{name=projects/*/locations/*/schedules/*/operations/*}:wait'
     - post: '/ui/{name=projects/*/locations/*/specialistPools/*/operations/*}:wait'
     - post: '/ui/{name=projects/*/locations/*/tensorboards/*/operations/*}:wait'
     - post: '/ui/{name=projects/*/locations/*/tensorboards/*/experiments/*/operations/*}:wait'
@@ -505,6 +550,7 @@ http:
     - post: '/v1/{name=projects/*/locations/*/studies/*/trials/*/operations/*}:wait'
     - post: '/v1/{name=projects/*/locations/*/trainingPipelines/*/operations/*}:wait'
     - post: '/v1/{name=projects/*/locations/*/pipelineJobs/*/operations/*}:wait'
+    - post: '/v1/{name=projects/*/locations/*/schedules/*/operations/*}:wait'
     - post: '/v1/{name=projects/*/locations/*/specialistPools/*/operations/*}:wait'
     - post: '/v1/{name=projects/*/locations/*/tensorboards/*/operations/*}:wait'
     - post: '/v1/{name=projects/*/locations/*/tensorboards/*/experiments/*/operations/*}:wait'
@@ -546,6 +592,14 @@ authentication:
       canonical_scopes: |-
         https://www.googleapis.com/auth/cloud-platform,
         https://www.googleapis.com/auth/cloud-platform.read-only
+  - selector: google.cloud.aiplatform.v1.MatchService.FindNeighbors
+    oauth:
+      canonical_scopes: |-
+        https://www.googleapis.com/auth/cloud-platform
+  - selector: google.cloud.aiplatform.v1.MatchService.ReadIndexDatapoints
+    oauth:
+      canonical_scopes: |-
+        https://www.googleapis.com/auth/cloud-platform
   - selector: 'google.cloud.aiplatform.v1.MetadataService.*'
     oauth:
       canonical_scopes: |-
@@ -558,6 +612,10 @@ authentication:
     oauth:
       canonical_scopes: |-
         https://www.googleapis.com/auth/cloud-platform
+  - selector: google.cloud.aiplatform.v1.ModelGardenService.GetPublisherModel
+    oauth:
+      canonical_scopes: |-
+        https://www.googleapis.com/auth/cloud-platform
   - selector: 'google.cloud.aiplatform.v1.ModelService.*'
     oauth:
       canonical_scopes: |-
@@ -567,6 +625,10 @@ authentication:
       canonical_scopes: |-
         https://www.googleapis.com/auth/cloud-platform
   - selector: 'google.cloud.aiplatform.v1.PredictionService.*'
+    oauth:
+      canonical_scopes: |-
+        https://www.googleapis.com/auth/cloud-platform
+  - selector: 'google.cloud.aiplatform.v1.ScheduleService.*'
     oauth:
       canonical_scopes: |-
         https://www.googleapis.com/auth/cloud-platform
@@ -648,3 +710,21 @@ authentication:
     oauth:
       canonical_scopes: |-
         https://www.googleapis.com/auth/cloud-platform
+
+publishing:
+  documentation_uri: https://cloud.google.com/ai-platform/docs
+  github_label: 'api: aiplatform'
+  organization: CLOUD
+  library_settings:
+  - version: google.cloud.aiplatform.v1
+    dotnet_settings:
+      renamed_resources:
+        datalabeling.googleapis.com/Dataset: DataLabelingDataset
+        automl.googleapis.com/Dataset: AutoMLDataset
+        automl.googleapis.com/Model: AutoMLModel
+  - version: google.cloud.aiplatform.v1beta1
+    dotnet_settings:
+      renamed_resources:
+        datalabeling.googleapis.com/Dataset: DataLabelingDataset
+        automl.googleapis.com/Dataset: AutoMLDataset
+        automl.googleapis.com/Model: AutoMLModel

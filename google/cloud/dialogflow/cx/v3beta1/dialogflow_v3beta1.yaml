@@ -74,6 +74,8 @@ backend:
   rules:
   - selector: 'google.cloud.dialogflow.cx.v3beta1.Agents.*'
     deadline: 60.0
+  - selector: google.cloud.dialogflow.cx.v3beta1.Agents.CreateAgent
+    deadline: 180.0
   - selector: google.cloud.dialogflow.cx.v3beta1.Changelogs.GetChangelog
     deadline: 60.0
   - selector: google.cloud.dialogflow.cx.v3beta1.Changelogs.ListChangelogs

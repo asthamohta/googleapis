@@ -6,6 +6,7 @@ title: Vision AI API
 apis:
 - name: google.cloud.location.Locations
 - name: google.cloud.visionai.v1.AppPlatform
+- name: google.cloud.visionai.v1.HealthCheckService
 - name: google.cloud.visionai.v1.LiveVideoAnalytics
 - name: google.cloud.visionai.v1.StreamingService
 - name: google.cloud.visionai.v1.StreamsService
@@ -18,6 +19,7 @@ types:
 - name: google.cloud.visionai.v1.AppPlatformCloudFunctionRequest
 - name: google.cloud.visionai.v1.AppPlatformCloudFunctionResponse
 - name: google.cloud.visionai.v1.AppPlatformMetadata
+- name: google.cloud.visionai.v1.BatchRunProcessResponse
 - name: google.cloud.visionai.v1.ClassificationPredictionResult
 - name: google.cloud.visionai.v1.CreateApplicationInstancesResponse
 - name: google.cloud.visionai.v1.CreateCorpusMetadata
@@ -102,6 +104,10 @@ http:
     additional_bindings:
     - get: '/v1/{name=projects/*/locations/*/warehouseOperations/*}'
     - get: '/v1/{name=projects/*/locations/*/corpora/*/assets/*/operations/*}'
+    - get: '/v1/{name=projects/*/locations/*/corpora/*/imageIndexes/*/operations/*}'
+    - get: '/v1/{name=projects/*/locations/*/corpora/*/indexes/*/operations/*}'
+    - get: '/v1/{name=projects/*/locations/*/corpora/*/operations/*}'
+    - get: '/v1/{name=projects/*/locations/*/indexEndpoints/*/operations/*}'
   - selector: google.longrunning.Operations.ListOperations
     get: '/v1/{name=projects/*/locations/*}/operations'
 
@@ -116,6 +122,10 @@ authentication:
       canonical_scopes: |-
         https://www.googleapis.com/auth/cloud-platform
   - selector: 'google.cloud.visionai.v1.AppPlatform.*'
+    oauth:
+      canonical_scopes: |-
+        https://www.googleapis.com/auth/cloud-platform
+  - selector: google.cloud.visionai.v1.HealthCheckService.HealthCheck
     oauth:
       canonical_scopes: |-
         https://www.googleapis.com/auth/cloud-platform

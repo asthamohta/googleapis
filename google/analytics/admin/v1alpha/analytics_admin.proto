@@ -1,4 +1,4 @@
-// Copyright 2022 Google LLC
+// Copyright 2023 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,6 +18,8 @@ package google.analytics.admin.v1alpha;
 
 import "google/analytics/admin/v1alpha/access_report.proto";
 import "google/analytics/admin/v1alpha/audience.proto";
+import "google/analytics/admin/v1alpha/channel_group.proto";
+import "google/analytics/admin/v1alpha/event_create_and_edit.proto";
 import "google/analytics/admin/v1alpha/expanded_data_set.proto";
 import "google/analytics/admin/v1alpha/resources.proto";
 import "google/api/annotations.proto";
@@ -28,7 +30,7 @@ import "google/protobuf/empty.proto";
 import "google/protobuf/field_mask.proto";
 import "google/protobuf/timestamp.proto";
 
-option go_package = "google.golang.org/genproto/googleapis/analytics/admin/v1alpha;admin";
+option go_package = "cloud.google.com/go/analytics/admin/apiv1alpha/adminpb;adminpb";
 option java_multiple_files = true;
 option java_outer_classname = "AnalyticsAdminProto";
 option java_package = "com.google.analytics.admin.v1alpha";
@@ -478,6 +480,16 @@ service AnalyticsAdminService {
     option (google.api.method_signature) = "parent,conversion_event";
   }
 
+  // Updates a conversion event with the specified attributes.
+  rpc UpdateConversionEvent(UpdateConversionEventRequest)
+      returns (ConversionEvent) {
+    option (google.api.http) = {
+      patch: "/v1alpha/{conversion_event.name=properties/*/conversionEvents/*}"
+      body: "conversion_event"
+    };
+    option (google.api.method_signature) = "conversion_event,update_mask";
+  }
+
   // Retrieve a single conversion event.
   rpc GetConversionEvent(GetConversionEventRequest) returns (ConversionEvent) {
     option (google.api.http) = {
@@ -918,6 +930,10 @@ service AnalyticsAdminService {
     option (google.api.http) = {
       post: "/v1alpha/{entity=properties/*}:runAccessReport"
       body: "*"
+      additional_bindings {
+        post: "/v1alpha/{entity=accounts/*}:runAccessReport"
+        body: "*"
+      }
     };
   }
 
@@ -1083,6 +1099,50 @@ service AnalyticsAdminService {
     option (google.api.method_signature) = "name";
   }
 
+  // Lookup for a single ChannelGroup.
+  rpc GetChannelGroup(GetChannelGroupRequest) returns (ChannelGroup) {
+    option (google.api.http) = {
+      get: "/v1alpha/{name=properties/*/channelGroups/*}"
+    };
+    option (google.api.method_signature) = "name";
+  }
+
+  // Lists ChannelGroups on a property.
+  rpc ListChannelGroups(ListChannelGroupsRequest)
+      returns (ListChannelGroupsResponse) {
+    option (google.api.http) = {
+      get: "/v1alpha/{parent=properties/*}/channelGroups"
+    };
+    option (google.api.method_signature) = "parent";
+  }
+
+  // Creates a ChannelGroup.
+  rpc CreateChannelGroup(CreateChannelGroupRequest) returns (ChannelGroup) {
+    option (google.api.http) = {
+      post: "/v1alpha/{parent=properties/*}/channelGroups"
+      body: "channel_group"
+    };
+    option (google.api.method_signature) = "parent,channel_group";
+  }
+
+  // Updates a ChannelGroup.
+  rpc UpdateChannelGroup(UpdateChannelGroupRequest) returns (ChannelGroup) {
+    option (google.api.http) = {
+      patch: "/v1alpha/{channel_group.name=properties/*/channelGroups/*}"
+      body: "channel_group"
+    };
+    option (google.api.method_signature) = "channel_group,update_mask";
+  }
+
+  // Deletes a ChannelGroup on a property.
+  rpc DeleteChannelGroup(DeleteChannelGroupRequest)
+      returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      delete: "/v1alpha/{name=properties/*/channelGroups/*}"
+    };
+    option (google.api.method_signature) = "name";
+  }
+
   // Sets the opt out status for the automated GA4 setup process for a UA
   // property.
   // Note: this has no effect on GA4 property.
@@ -1123,13 +1183,165 @@ service AnalyticsAdminService {
     };
     option (google.api.method_signature) = "parent";
   }
+
+  // Returns the enhanced measurement settings for this data stream.
+  // Note that the stream must enable enhanced measurement for these settings to
+  // take effect.
+  rpc GetEnhancedMeasurementSettings(GetEnhancedMeasurementSettingsRequest)
+      returns (EnhancedMeasurementSettings) {
+    option (google.api.http) = {
+      get: "/v1alpha/{name=properties/*/dataStreams/*/enhancedMeasurementSettings}"
+    };
+    option (google.api.method_signature) = "name";
+  }
+
+  // Updates the enhanced measurement settings for this data stream.
+  // Note that the stream must enable enhanced measurement for these settings to
+  // take effect.
+  rpc UpdateEnhancedMeasurementSettings(
+      UpdateEnhancedMeasurementSettingsRequest)
+      returns (EnhancedMeasurementSettings) {
+    option (google.api.http) = {
+      patch: "/v1alpha/{enhanced_measurement_settings.name=properties/*/dataStreams/*/enhancedMeasurementSettings}"
+      body: "enhanced_measurement_settings"
+    };
+    option (google.api.method_signature) =
+        "enhanced_measurement_settings,update_mask";
+  }
+
+  // Creates a connected site tag for a Universal Analytics property. You can
+  // create a maximum of 20 connected site tags per property.
+  // Note: This API cannot be used on GA4 properties.
+  rpc CreateConnectedSiteTag(CreateConnectedSiteTagRequest)
+      returns (CreateConnectedSiteTagResponse) {
+    option (google.api.http) = {
+      post: "/v1alpha/properties:createConnectedSiteTag"
+      body: "*"
+    };
+  }
+
+  // Deletes a connected site tag for a Universal Analytics property.
+  // Note: this has no effect on GA4 properties.
+  rpc DeleteConnectedSiteTag(DeleteConnectedSiteTagRequest)
+      returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/v1alpha/properties:deleteConnectedSiteTag"
+      body: "*"
+    };
+  }
+
+  // Lists the connected site tags for a Universal Analytics property. A maximum
+  // of 20 connected site tags will be returned. Note: this has no effect on GA4
+  // property.
+  rpc ListConnectedSiteTags(ListConnectedSiteTagsRequest)
+      returns (ListConnectedSiteTagsResponse) {
+    option (google.api.http) = {
+      post: "/v1alpha/properties:listConnectedSiteTags"
+      body: "*"
+    };
+  }
+
+  // Given a specified UA property, looks up the GA4 property connected to it.
+  // Note: this cannot be used with GA4 properties.
+  rpc FetchConnectedGa4Property(FetchConnectedGa4PropertyRequest)
+      returns (FetchConnectedGa4PropertyResponse) {
+    option (google.api.http) = {
+      get: "/v1alpha/properties:fetchConnectedGa4Property"
+    };
+  }
+
+  // Looks up a single AdSenseLink.
+  rpc GetAdSenseLink(GetAdSenseLinkRequest) returns (AdSenseLink) {
+    option (google.api.http) = {
+      get: "/v1alpha/{name=properties/*/adSenseLinks/*}"
+    };
+    option (google.api.method_signature) = "name";
+  }
+
+  // Creates an AdSenseLink.
+  rpc CreateAdSenseLink(CreateAdSenseLinkRequest) returns (AdSenseLink) {
+    option (google.api.http) = {
+      post: "/v1alpha/{parent=properties/*}/adSenseLinks"
+      body: "adsense_link"
+    };
+    option (google.api.method_signature) = "parent,adsense_link";
+  }
+
+  // Deletes an AdSenseLink.
+  rpc DeleteAdSenseLink(DeleteAdSenseLinkRequest)
+      returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      delete: "/v1alpha/{name=properties/*/adSenseLinks/*}"
+    };
+    option (google.api.method_signature) = "name";
+  }
+
+  // Lists AdSenseLinks on a property.
+  rpc ListAdSenseLinks(ListAdSenseLinksRequest)
+      returns (ListAdSenseLinksResponse) {
+    option (google.api.http) = {
+      get: "/v1alpha/{parent=properties/*}/adSenseLinks"
+    };
+    option (google.api.method_signature) = "parent";
+  }
+
+  // Lookup for a single EventCreateRule.
+  rpc GetEventCreateRule(GetEventCreateRuleRequest) returns (EventCreateRule) {
+    option (google.api.http) = {
+      get: "/v1alpha/{name=properties/*/dataStreams/*/eventCreateRules/*}"
+    };
+    option (google.api.method_signature) = "name";
+  }
+
+  // Lists EventCreateRules on a web data stream.
+  rpc ListEventCreateRules(ListEventCreateRulesRequest)
+      returns (ListEventCreateRulesResponse) {
+    option (google.api.http) = {
+      get: "/v1alpha/{parent=properties/*/dataStreams/*}/eventCreateRules"
+    };
+    option (google.api.method_signature) = "parent";
+  }
+
+  // Creates an EventCreateRule.
+  rpc CreateEventCreateRule(CreateEventCreateRuleRequest)
+      returns (EventCreateRule) {
+    option (google.api.http) = {
+      post: "/v1alpha/{parent=properties/*/dataStreams/*}/eventCreateRules"
+      body: "event_create_rule"
+    };
+    option (google.api.method_signature) = "parent,event_create_rule";
+  }
+
+  // Updates an EventCreateRule.
+  rpc UpdateEventCreateRule(UpdateEventCreateRuleRequest)
+      returns (EventCreateRule) {
+    option (google.api.http) = {
+      patch: "/v1alpha/{event_create_rule.name=properties/*/dataStreams/*/eventCreateRules/*}"
+      body: "event_create_rule"
+    };
+    option (google.api.method_signature) = "event_create_rule,update_mask";
+  }
+
+  // Deletes an EventCreateRule.
+  rpc DeleteEventCreateRule(DeleteEventCreateRuleRequest)
+      returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      delete: "/v1alpha/{name=properties/*/dataStreams/*/eventCreateRules/*}"
+    };
+    option (google.api.method_signature) = "name";
+  }
 }
 
 // The request for a Data Access Record Report.
 message RunAccessReportRequest {
-  // The Data Access Report is requested for this property.
-  // For example if "123" is your GA4 property ID, then entity should be
-  // "properties/123".
+  // The Data Access Report supports requesting at the property level or account
+  // level. If requested at the account level, Data Access Reports include all
+  // access for all properties under that account.
+  //
+  // To request at the property level, entity should be for example
+  // 'properties/123' if "123" is your GA4 property ID. To request at the
+  // account level, entity should be for example 'accounts/1234' if "1234" is
+  // your GA4 Account ID.
   string entity = 1;
 
   // The dimensions requested and displayed in the response. Requests are
@@ -1195,7 +1407,8 @@ message RunAccessReportRequest {
   repeated AccessOrderBy order_bys = 10;
 
   // Toggles whether to return the current state of this Analytics Property's
-  // quota. Quota is returned in [AccessQuota](#AccessQuota).
+  // quota. Quota is returned in [AccessQuota](#AccessQuota). For account-level
+  // requests, this field must be false.
   bool return_entity_quota = 11;
 }
 
@@ -1224,7 +1437,8 @@ message RunAccessReportResponse {
   // [Pagination](https://developers.google.com/analytics/devguides/reporting/data/v1/basics#pagination).
   int32 row_count = 4;
 
-  // The quota state for this Analytics property including this request.
+  // The quota state for this Analytics property including this request. This
+  // field doesn't work with account-level requests.
   AccessQuota quota = 5;
 }
 
@@ -1304,7 +1518,7 @@ message ProvisionAccountTicketRequest {
   Account account = 1;
 
   // Redirect URI where the user will be sent after accepting Terms of Service.
-  // Must be configured in Developers Console as a Redirect URI.
+  // Must be configured in Cloud Console as a Redirect URI.
   string redirect_uri = 2;
 }
 
@@ -1957,8 +2171,10 @@ message UpdateMeasurementProtocolSecretRequest {
   MeasurementProtocolSecret measurement_protocol_secret = 1
       [(google.api.field_behavior) = REQUIRED];
 
-  // The list of fields to be updated. Omitted fields will not be updated.
-  google.protobuf.FieldMask update_mask = 2;
+  // Required. The list of fields to be updated. Omitted fields will not be
+  // updated.
+  google.protobuf.FieldMask update_mask = 2
+      [(google.api.field_behavior) = REQUIRED];
 }
 
 // Request message for ListMeasurementProtocolSecret RPC
@@ -2035,6 +2251,20 @@ message CreateConversionEventRequest {
       child_type: "analyticsadmin.googleapis.com/ConversionEvent"
     }
   ];
+}
+
+// Request message for UpdateConversionEvent RPC
+message UpdateConversionEventRequest {
+  // Required. The conversion event to update.
+  // The `name` field is used to identify the settings to be updated.
+  ConversionEvent conversion_event = 1 [(google.api.field_behavior) = REQUIRED];
+
+  // Required. The list of fields to be updated. Field names must be in snake
+  // case (e.g., "field_to_update"). Omitted fields will not be updated. To
+  // replace the entire entity, use one path with the string "*" to match all
+  // fields.
+  google.protobuf.FieldMask update_mask = 2
+      [(google.api.field_behavior) = REQUIRED];
 }
 
 // Request message for GetConversionEvent RPC
@@ -2896,8 +3126,9 @@ message UpdateAccessBindingRequest {
 // Request message for BatchUpdateAccessBindings RPC.
 message BatchUpdateAccessBindingsRequest {
   // Required. The account or property that owns the access bindings. The parent
-  // field in the UpdateAccessBindingRequest messages must either be empty or
-  // match this field. Formats:
+  // of all provided AccessBinding in UpdateAccessBindingRequest messages must
+  // match this field.
+  // Formats:
   // - accounts/{account}
   // - properties/{property}
   string parent = 1 [
@@ -2935,8 +3166,8 @@ message DeleteAccessBindingRequest {
 // Request message for BatchDeleteAccessBindings RPC.
 message BatchDeleteAccessBindingsRequest {
   // Required. The account or property that owns the access bindings. The parent
-  // field in the DeleteAccessBindingRequest messages must either be empty or
-  // match this field. Formats:
+  // of all provided values for the 'names' field in DeleteAccessBindingRequest
+  // messages must match this field. Formats:
   // - accounts/{account}
   // - properties/{property}
   string parent = 1 [
@@ -2996,7 +3227,7 @@ message DeleteExpandedDataSetRequest {
 
 // Request message for GetExpandedDataSet RPC.
 message GetExpandedDataSetRequest {
-  // Required. The name of the Audience to get.
+  // Required. The name of the ExpandedDataSet to get.
   // Example format: properties/1234/expandedDataSets/5678
   string name = 1 [
     (google.api.field_behavior) = REQUIRED,
@@ -3034,6 +3265,95 @@ message ListExpandedDataSetsResponse {
   // List of ExpandedDataSet. These will be ordered stably, but in an arbitrary
   // order.
   repeated ExpandedDataSet expanded_data_sets = 1;
+
+  // A token, which can be sent as `page_token` to retrieve the next page.
+  // If this field is omitted, there are no subsequent pages.
+  string next_page_token = 2;
+}
+
+// Request message for CreateChannelGroup RPC.
+message CreateChannelGroupRequest {
+  // Required. The property for which to create a ChannelGroup.
+  // Example format: properties/1234
+  string parent = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.resource_reference) = {
+      child_type: "analyticsadmin.googleapis.com/ChannelGroup"
+    }
+  ];
+
+  // Required. The ChannelGroup to create.
+  ChannelGroup channel_group = 2 [(google.api.field_behavior) = REQUIRED];
+}
+
+// Request message for UpdateChannelGroup RPC.
+message UpdateChannelGroupRequest {
+  // Required. The ChannelGroup to update.
+  // The resource's `name` field is used to identify the ChannelGroup to be
+  // updated.
+  ChannelGroup channel_group = 1 [(google.api.field_behavior) = REQUIRED];
+
+  // Required. The list of fields to be updated. Field names must be in snake
+  // case (e.g., "field_to_update"). Omitted fields will not be updated. To
+  // replace the entire entity, use one path with the string "*" to match all
+  // fields.
+  google.protobuf.FieldMask update_mask = 2
+      [(google.api.field_behavior) = REQUIRED];
+}
+
+// Request message for DeleteChannelGroup RPC.
+message DeleteChannelGroupRequest {
+  // Required. The ChannelGroup to delete.
+  // Example format: properties/1234/channelGroups/5678
+  string name = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.resource_reference) = {
+      type: "analyticsadmin.googleapis.com/ChannelGroup"
+    }
+  ];
+}
+
+// Request message for GetChannelGroup RPC.
+message GetChannelGroupRequest {
+  // Required. The ChannelGroup to get.
+  // Example format: properties/1234/channelGroups/5678
+  string name = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.resource_reference) = {
+      type: "analyticsadmin.googleapis.com/ChannelGroup"
+    }
+  ];
+}
+
+// Request message for ListChannelGroups RPC.
+message ListChannelGroupsRequest {
+  // Required. The property for which to list ChannelGroups.
+  // Example format: properties/1234
+  string parent = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.resource_reference) = {
+      child_type: "analyticsadmin.googleapis.com/ChannelGroup"
+    }
+  ];
+
+  // The maximum number of resources to return.
+  // If unspecified, at most 50 resources will be returned.
+  // The maximum value is 200 (higher values will be coerced to the maximum).
+  int32 page_size = 2;
+
+  // A page token, received from a previous `ListChannelGroups` call. Provide
+  // this to retrieve the subsequent page.
+  //
+  // When paginating, all other parameters provided to `ListChannelGroups`
+  // must match the call that provided the page token.
+  string page_token = 3;
+}
+
+// Response message for ListChannelGroups RPC.
+message ListChannelGroupsResponse {
+  // List of ChannelGroup. These will be ordered stably, but in an arbitrary
+  // order.
+  repeated ChannelGroup channel_groups = 1;
 
   // A token, which can be sent as `page_token` to retrieve the next page.
   // If this field is omitted, there are no subsequent pages.
@@ -3114,6 +3434,272 @@ message ListBigQueryLinksRequest {
 message ListBigQueryLinksResponse {
   // List of BigQueryLinks.
   repeated BigQueryLink bigquery_links = 1;
+
+  // A token, which can be sent as `page_token` to retrieve the next page.
+  // If this field is omitted, there are no subsequent pages.
+  string next_page_token = 2;
+}
+
+// Request message for GetEnhancedMeasurementSettings RPC.
+message GetEnhancedMeasurementSettingsRequest {
+  // Required. The name of the settings to lookup.
+  // Format:
+  // properties/{property}/dataStreams/{data_stream}/enhancedMeasurementSettings
+  // Example: "properties/1000/dataStreams/2000/enhancedMeasurementSettings"
+  string name = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.resource_reference) = {
+      type: "analyticsadmin.googleapis.com/EnhancedMeasurementSettings"
+    }
+  ];
+}
+
+// Request message for UpdateEnhancedMeasurementSettings RPC.
+message UpdateEnhancedMeasurementSettingsRequest {
+  // Required. The settings to update.
+  // The `name` field is used to identify the settings to be updated.
+  EnhancedMeasurementSettings enhanced_measurement_settings = 1
+      [(google.api.field_behavior) = REQUIRED];
+
+  // Required. The list of fields to be updated. Field names must be in snake
+  // case (e.g., "field_to_update"). Omitted fields will not be updated. To
+  // replace the entire entity, use one path with the string "*" to match all
+  // fields.
+  google.protobuf.FieldMask update_mask = 2
+      [(google.api.field_behavior) = REQUIRED];
+}
+
+// Request message for CreateConnectedSiteTag RPC.
+message CreateConnectedSiteTagRequest {
+  // The Universal Analytics property to create connected site tags for.
+  // This API does not support GA4 properties.
+  // Format: properties/{universalAnalyticsPropertyId}
+  // Example: properties/1234
+  string property = 1;
+
+  // Required. The tag to add to the Universal Analytics property
+  ConnectedSiteTag connected_site_tag = 2
+      [(google.api.field_behavior) = REQUIRED];
+}
+
+// Response message for CreateConnectedSiteTag RPC.
+message CreateConnectedSiteTagResponse {}
+
+// Request message for DeleteConnectedSiteTag RPC.
+message DeleteConnectedSiteTagRequest {
+  // The Universal Analytics property to delete connected site tags for.
+  // This API does not support GA4 properties.
+  // Format: properties/{universalAnalyticsPropertyId}
+  // Example: properties/1234
+  string property = 1;
+
+  // Tag ID to forward events to. Also known as the Measurement ID, or the
+  // "G-ID"  (For example: G-12345).
+  string tag_id = 2;
+}
+
+// Request message for ListConnectedSiteTags RPC.
+message ListConnectedSiteTagsRequest {
+  // The Universal Analytics property to fetch connected site tags for.
+  // This does not work on GA4 properties. A maximum of 20 connected site tags
+  // will be returned.
+  // Example Format: `properties/1234`
+  string property = 1;
+}
+
+// Response message for ListConnectedSiteTags RPC.
+message ListConnectedSiteTagsResponse {
+  // The site tags for the Universal Analytics property. A maximum of 20
+  // connected site tags will be returned.
+  repeated ConnectedSiteTag connected_site_tags = 1;
+}
+
+// Request message to be passed to CreateAdSenseLink method.
+message CreateAdSenseLinkRequest {
+  // Required. The property for which to create an AdSense Link.
+  // Format: properties/{propertyId}
+  // Example: properties/1234
+  string parent = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.resource_reference) = {
+      child_type: "analyticsadmin.googleapis.com/AdSenseLink"
+    }
+  ];
+
+  // Required. The AdSense Link to create
+  AdSenseLink adsense_link = 2 [(google.api.field_behavior) = REQUIRED];
+}
+
+// Request message to be passed to GetAdSenseLink method.
+message GetAdSenseLinkRequest {
+  // Required. Unique identifier for the AdSense Link requested.
+  // Format: properties/{propertyId}/adSenseLinks/{linkId}
+  // Example: properties/1234/adSenseLinks/5678
+  string name = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.resource_reference) = {
+      type: "analyticsadmin.googleapis.com/AdSenseLink"
+    }
+  ];
+}
+
+// Request message to be passed to DeleteAdSenseLink method.
+message DeleteAdSenseLinkRequest {
+  // Required. Unique identifier for the AdSense Link to be deleted.
+  // Format: properties/{propertyId}/adSenseLinks/{linkId}
+  // Example: properties/1234/adSenseLinks/5678
+  string name = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.resource_reference) = {
+      type: "analyticsadmin.googleapis.com/AdSenseLink"
+    }
+  ];
+}
+
+// Request message to be passed to ListAdSenseLinks method.
+message ListAdSenseLinksRequest {
+  // Required. Resource name of the parent property.
+  // Format: properties/{propertyId}
+  // Example: properties/1234
+  string parent = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.resource_reference) = {
+      child_type: "analyticsadmin.googleapis.com/AdSenseLink"
+    }
+  ];
+
+  // The maximum number of resources to return.
+  // If unspecified, at most 50 resources will be returned.
+  // The maximum value is 200 (higher values will be coerced to the maximum).
+  int32 page_size = 2;
+
+  // A page token received from a previous `ListAdSenseLinks` call.
+  // Provide this to retrieve the subsequent page.
+  //
+  // When paginating, all other parameters provided to `ListAdSenseLinks` must
+  // match the call that provided the page token.
+  string page_token = 3;
+}
+
+// Response message for ListAdSenseLinks method.
+message ListAdSenseLinksResponse {
+  // List of AdSenseLinks.
+  repeated AdSenseLink adsense_links = 1;
+
+  // A token, which can be sent as `page_token` to retrieve the next page.
+  // If this field is omitted, there are no subsequent pages.
+  string next_page_token = 2;
+}
+
+// Request for looking up GA4 property connected to a UA property.
+message FetchConnectedGa4PropertyRequest {
+  // Required. The UA property for which to look up the connected GA4 property.
+  // Note this request uses the
+  // internal property ID, not the tracking ID of the form UA-XXXXXX-YY.
+  // Format: properties/{internal_web_property_id}
+  // Example: properties/1234
+  string property = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.resource_reference) = {
+      type: "analyticsadmin.googleapis.com/Property"
+    }
+  ];
+}
+
+// Response for looking up GA4 property connected to a UA property.
+message FetchConnectedGa4PropertyResponse {
+  // The GA4 property connected to the UA property. An empty string is returned
+  // when there is no connected GA4 property.
+  // Format: properties/{property_id}
+  // Example: properties/1234
+  string property = 1 [(google.api.resource_reference) = {
+    type: "analyticsadmin.googleapis.com/Property"
+  }];
+}
+
+// Request message for CreateEventCreateRule RPC.
+message CreateEventCreateRuleRequest {
+  // Required. Example format: properties/123/dataStreams/456
+  string parent = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.resource_reference) = {
+      child_type: "analyticsadmin.googleapis.com/EventCreateRule"
+    }
+  ];
+
+  // Required. The EventCreateRule to create.
+  EventCreateRule event_create_rule = 2
+      [(google.api.field_behavior) = REQUIRED];
+}
+
+// Request message for UpdateEventCreateRule RPC.
+message UpdateEventCreateRuleRequest {
+  // Required. The EventCreateRule to update.
+  // The resource's `name` field is used to identify the EventCreateRule to be
+  // updated.
+  EventCreateRule event_create_rule = 1
+      [(google.api.field_behavior) = REQUIRED];
+
+  // Required. The list of fields to be updated. Field names must be in snake
+  // case (e.g., "field_to_update"). Omitted fields will not be updated. To
+  // replace the entire entity, use one path with the string "*" to match all
+  // fields.
+  google.protobuf.FieldMask update_mask = 2
+      [(google.api.field_behavior) = REQUIRED];
+}
+
+// Request message for DeleteEventCreateRule RPC.
+message DeleteEventCreateRuleRequest {
+  // Required. Example format:
+  // properties/123/dataStreams/456/eventCreateRules/789
+  string name = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.resource_reference) = {
+      type: "analyticsadmin.googleapis.com/EventCreateRule"
+    }
+  ];
+}
+
+// Request message for GetEventCreateRule RPC.
+message GetEventCreateRuleRequest {
+  // Required. The name of the EventCreateRule to get.
+  // Example format: properties/123/dataStreams/456/eventCreateRules/789
+  string name = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.resource_reference) = {
+      type: "analyticsadmin.googleapis.com/EventCreateRule"
+    }
+  ];
+}
+
+// Request message for ListEventCreateRules RPC.
+message ListEventCreateRulesRequest {
+  // Required. Example format: properties/123/dataStreams/456
+  string parent = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.resource_reference) = {
+      child_type: "analyticsadmin.googleapis.com/EventCreateRule"
+    }
+  ];
+
+  // The maximum number of resources to return.
+  // If unspecified, at most 50 resources will be returned.
+  // The maximum value is 200 (higher values will be coerced to the maximum).
+  int32 page_size = 2;
+
+  // A page token, received from a previous `ListEventCreateRules` call. Provide
+  // this to retrieve the subsequent page.
+  //
+  // When paginating, all other parameters provided to `ListEventCreateRules`
+  // must match the call that provided the page token.
+  string page_token = 3;
+}
+
+// Response message for ListEventCreateRules RPC.
+message ListEventCreateRulesResponse {
+  // List of EventCreateRules. These will be ordered stably, but in an arbitrary
+  // order.
+  repeated EventCreateRule event_create_rules = 1;
 
   // A token, which can be sent as `page_token` to retrieve the next page.
   // If this field is omitted, there are no subsequent pages.

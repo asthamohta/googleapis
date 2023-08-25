@@ -191,6 +191,9 @@
       "method" : "List"
     }, {
       "service" : "google.cloud.compute.v1.InstanceTemplates",
+      "method" : "AggregatedList"
+    }, {
+      "service" : "google.cloud.compute.v1.InstanceTemplates",
       "method" : "Get"
     }, {
       "service" : "google.cloud.compute.v1.InstanceTemplates",
@@ -242,6 +245,12 @@
       "method" : "Get"
     }, {
       "service" : "google.cloud.compute.v1.InterconnectLocations",
+      "method" : "List"
+    }, {
+      "service" : "google.cloud.compute.v1.InterconnectRemoteLocations",
+      "method" : "Get"
+    }, {
+      "service" : "google.cloud.compute.v1.InterconnectRemoteLocations",
       "method" : "List"
     }, {
       "service" : "google.cloud.compute.v1.Interconnects",
@@ -467,6 +476,12 @@
       "method" : "Get"
     }, {
       "service" : "google.cloud.compute.v1.RegionInstanceGroups",
+      "method" : "List"
+    }, {
+      "service" : "google.cloud.compute.v1.RegionInstanceTemplates",
+      "method" : "Get"
+    }, {
+      "service" : "google.cloud.compute.v1.RegionInstanceTemplates",
       "method" : "List"
     }, {
       "service" : "google.cloud.compute.v1.RegionNetworkEndpointGroups",
@@ -797,6 +812,9 @@
       "method" : "Insert"
     }, {
       "service" : "google.cloud.compute.v1.Addresses",
+      "method" : "Move"
+    }, {
+      "service" : "google.cloud.compute.v1.Addresses",
       "method" : "SetLabels"
     }, {
       "service" : "google.cloud.compute.v1.Autoscalers",
@@ -866,6 +884,9 @@
       "method" : "AddResourcePolicies"
     }, {
       "service" : "google.cloud.compute.v1.Disks",
+      "method" : "BulkInsert"
+    }, {
+      "service" : "google.cloud.compute.v1.Disks",
       "method" : "CreateSnapshot"
     }, {
       "service" : "google.cloud.compute.v1.Disks",
@@ -887,7 +908,19 @@
       "method" : "SetLabels"
     }, {
       "service" : "google.cloud.compute.v1.Disks",
+      "method" : "StartAsyncReplication"
+    }, {
+      "service" : "google.cloud.compute.v1.Disks",
+      "method" : "StopAsyncReplication"
+    }, {
+      "service" : "google.cloud.compute.v1.Disks",
+      "method" : "StopGroupAsyncReplication"
+    }, {
+      "service" : "google.cloud.compute.v1.Disks",
       "method" : "TestIamPermissions"
+    }, {
+      "service" : "google.cloud.compute.v1.Disks",
+      "method" : "Update"
     }, {
       "service" : "google.cloud.compute.v1.ExternalVpnGateways",
       "method" : "Delete"
@@ -969,6 +1002,9 @@
     }, {
       "service" : "google.cloud.compute.v1.GlobalAddresses",
       "method" : "Insert"
+    }, {
+      "service" : "google.cloud.compute.v1.GlobalAddresses",
+      "method" : "Move"
     }, {
       "service" : "google.cloud.compute.v1.GlobalAddresses",
       "method" : "SetLabels"
@@ -1193,6 +1229,9 @@
       "method" : "SetMinCpuPlatform"
     }, {
       "service" : "google.cloud.compute.v1.Instances",
+      "method" : "SetName"
+    }, {
+      "service" : "google.cloud.compute.v1.Instances",
       "method" : "SetScheduling"
     }, {
       "service" : "google.cloud.compute.v1.Instances",
@@ -1406,6 +1445,9 @@
       "method" : "SetNodeTemplate"
     }, {
       "service" : "google.cloud.compute.v1.NodeGroups",
+      "method" : "SimulateMaintenanceEvent"
+    }, {
+      "service" : "google.cloud.compute.v1.NodeGroups",
       "method" : "TestIamPermissions"
     }, {
       "service" : "google.cloud.compute.v1.NodeTemplates",
@@ -1520,6 +1562,9 @@
       "method" : "AddResourcePolicies"
     }, {
       "service" : "google.cloud.compute.v1.RegionDisks",
+      "method" : "BulkInsert"
+    }, {
+      "service" : "google.cloud.compute.v1.RegionDisks",
       "method" : "CreateSnapshot"
     }, {
       "service" : "google.cloud.compute.v1.RegionDisks",
@@ -1541,7 +1586,19 @@
       "method" : "SetLabels"
     }, {
       "service" : "google.cloud.compute.v1.RegionDisks",
+      "method" : "StartAsyncReplication"
+    }, {
+      "service" : "google.cloud.compute.v1.RegionDisks",
+      "method" : "StopAsyncReplication"
+    }, {
+      "service" : "google.cloud.compute.v1.RegionDisks",
+      "method" : "StopGroupAsyncReplication"
+    }, {
+      "service" : "google.cloud.compute.v1.RegionDisks",
       "method" : "TestIamPermissions"
+    }, {
+      "service" : "google.cloud.compute.v1.RegionDisks",
+      "method" : "Update"
     }, {
       "service" : "google.cloud.compute.v1.RegionHealthCheckServices",
       "method" : "Delete"
@@ -1617,6 +1674,12 @@
     }, {
       "service" : "google.cloud.compute.v1.RegionInstanceGroups",
       "method" : "SetNamedPorts"
+    }, {
+      "service" : "google.cloud.compute.v1.RegionInstanceTemplates",
+      "method" : "Delete"
+    }, {
+      "service" : "google.cloud.compute.v1.RegionInstanceTemplates",
+      "method" : "Insert"
     }, {
       "service" : "google.cloud.compute.v1.RegionInstances",
       "method" : "BulkInsert"
@@ -1764,6 +1827,9 @@
     }, {
       "service" : "google.cloud.compute.v1.ResourcePolicies",
       "method" : "Insert"
+    }, {
+      "service" : "google.cloud.compute.v1.ResourcePolicies",
+      "method" : "Patch"
     }, {
       "service" : "google.cloud.compute.v1.ResourcePolicies",
       "method" : "SetIamPolicy"
