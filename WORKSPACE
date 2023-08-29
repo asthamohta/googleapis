@@ -189,9 +189,9 @@ rules_proto_toolchains()
 # rules_gapic also depends on rules_go, so it must come after our own dependency on rules_go.
 # It must also come before gapic-generator-go so as to ensure that it does not bring in an old
 # version of rules_gapic.
-_rules_gapic_version = "0.28.0"
+_rules_gapic_version = "0.28.3"
 
-_rules_gapic_sha256 = "921aebfb7f26c110fcdafeb6b74b1eb2d114a6d52e1bc11d6c1c011cf1da2017"
+_rules_gapic_sha256 = "5cc8749d089a65cabab004acab4a040600773939f75bb779edcafc7aa01f0f28"
 
 http_archive(
     name = "rules_gapic",
@@ -222,7 +222,7 @@ local_repository(
     path = ".",
 )
 
-_gapic_generator_go_version = "0.36.0"
+_gapic_generator_go_version = "0.38.0"
 
 http_archive(
     name = "com_googleapis_gapic_generator_go",
@@ -270,7 +270,7 @@ maven_install(
     ],
 )
 
-_gapic_generator_java_version = "2.21.0"
+_gapic_generator_java_version = "2.24.0"
 
 maven_install(
     artifacts = [
@@ -323,7 +323,7 @@ load("@rules_python//python:pip.bzl", "pip_install")
 
 pip_install()
 
-_gapic_generator_python_version = "1.9.1"
+_gapic_generator_python_version = "1.11.4"
 
 http_archive(
     name = "gapic_generator_python",
@@ -345,9 +345,9 @@ gapic_generator_register_toolchains()
 # TypeScript
 ##############################################################################
 
-_gapic_generator_typescript_version = "3.0.3"
+_gapic_generator_typescript_version = "4.0.3"
 
-_gapic_generator_typescript_sha256 = "f79b4517873f69ea09621b511aade2e039bcfc37f19342a135bf45eaa6f60595"
+_gapic_generator_typescript_sha256 = "19befa44f81d573daf607a1b49fc7ae45d661c3c8bd3da30253189b9ecc2f85a"
 
 ### TypeScript generator
 http_archive(
@@ -423,9 +423,9 @@ http_archive(
     urls = ["https://github.com/googleapis/gax-dotnet/archive/refs/tags/%s.tar.gz" % _gax_dotnet_version],
 )
 
-_gapic_generator_csharp_version = "1.4.17"
+_gapic_generator_csharp_version = "1.4.20"
 
-_gapic_generator_csharp_sha256 = "8a3b1deeb1a3679cb1f82d121322249c281b372d2eb52ba53586cc054ab5eee0"
+_gapic_generator_csharp_sha256 = "44e44378a5ce42fafeb7de811845541baa3a696969f57384c602f5b9047419a0"
 
 http_archive(
     name = "gapic_generator_csharp",
@@ -442,9 +442,9 @@ gapic_generator_csharp_repositories()
 # Ruby
 ##############################################################################
 
-_gapic_generator_ruby_version = "v0.23.4"
+_gapic_generator_ruby_version = "v0.24.0"
 
-_gapic_generator_ruby_sha256 = "185c03f011849f8e1284c7a2b4c41f57ae9fbee3013418607c5cf09c1c5cdbc3"
+_gapic_generator_ruby_sha256 = "832ce2e58d1991521543ab16eb5fef12824e332985f9e3cd75c9af458cbee632"
 
 http_archive(
     name = "gapic_generator_ruby",
@@ -461,7 +461,7 @@ gapic_generator_ruby_repositories()
 # Discovery
 ##############################################################################
 
-_disco_to_proto3_converter_version = "c47a76dd3d591478dd1a902413636c06da1153b8"
+_disco_to_proto3_converter_version = "96e1e63d3c1ddc546a57ac78b28893ee1013266a"
 
 http_archive(
     name = "com_google_disco_to_proto3_converter",

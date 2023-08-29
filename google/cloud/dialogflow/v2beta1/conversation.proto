@@ -290,7 +290,7 @@ message CreateConversationRequest {
   // auto-generated one to you.
   //
   // The conversation ID must be compliant with the regression fomula
-  // "[a-zA-Z][a-zA-Z0-9_-]*" with the characters length in range of [3,64].
+  // `[a-zA-Z][a-zA-Z0-9_-]*` with the characters length in range of [3,64].
   // If the field is provided, the caller is resposible for
   // 1. the uniqueness of the ID, otherwise the request will be rejected.
   // 2. the consistency for whether to use custom ID or not under a project to
@@ -408,7 +408,7 @@ message BatchCreateMessagesRequest {
     }
   ];
 
-  // Required. A maximum of 1000 Messages can be created in a batch.
+  // Required. A maximum of 300 messages can be created in a batch.
   // [CreateMessageRequest.message.send_time][] is required. All created
   // messages will have identical
   // [Message.create_time][google.cloud.dialogflow.v2beta1.Message.create_time].
@@ -494,7 +494,7 @@ message SuggestConversationSummaryRequest {
   // suggestion. By default 500 and at most 1000.
   int32 context_size = 4;
 
-  // Parameters for a human assist query.
+  // Parameters for a human assist query. Only used for POC/demo purpose.
   AssistQueryParameters assist_query_params = 5;
 }
 
@@ -516,6 +516,10 @@ message SuggestConversationSummaryResponse {
     string answer_record = 3 [(google.api.resource_reference) = {
       type: "dialogflow.googleapis.com/AnswerRecord"
     }];
+
+    // The baseline model version used to generate this summary. It is empty if
+    // a baseline model was not used to generate this summary.
+    string baseline_model_version = 5;
   }
 
   // Generated summary.
@@ -597,6 +601,10 @@ message GenerateStatelessSummaryResponse {
     // section's name and the value is the section's content. There is no
     // specific format for the key or value.
     map<string, string> text_sections = 2;
+
+    // The baseline model version used to generate this summary. It is empty if
+    // a baseline model was not used to generate this summary.
+    string baseline_model_version = 4;
   }
 
   // Generated summary.
